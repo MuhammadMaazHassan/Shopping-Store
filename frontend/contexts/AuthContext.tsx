@@ -1,10 +1,17 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import { useRouter } from "next/router";
 
 interface User {
   _id: string;
   name: string;
   email: string;
+  avatar?: string;
   phone?: string;
   address?: string;
   areaCode?: string;
