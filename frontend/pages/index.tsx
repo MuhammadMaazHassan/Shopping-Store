@@ -392,9 +392,9 @@ export default function Home() {
         <div className="grid gap-6 sm:grid-cols-3">
           {heroHighlights.map((highlight, idx) => {
             const colors = [
-              'bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200 hover:from-yellow-100 hover:to-orange-100',
-              'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:from-blue-100 hover:to-indigo-100',
-              'bg-gradient-to-br from-green-50 to-teal-50 border-green-200 hover:from-green-100 hover:to-teal-100'
+              "bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200 hover:from-yellow-100 hover:to-orange-100",
+              "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:from-blue-100 hover:to-indigo-100",
+              "bg-gradient-to-br from-green-50 to-teal-50 border-green-200 hover:from-green-100 hover:to-teal-100",
             ];
             return (
               <div
@@ -406,7 +406,9 @@ export default function Home() {
                 <h3 className="text-lg font-semibold text-gray-800">
                   {highlight.title}
                 </h3>
-                <p className="mt-2 text-sm text-gray-600">{highlight.subtitle}</p>
+                <p className="mt-2 text-sm text-gray-600">
+                  {highlight.subtitle}
+                </p>
               </div>
             );
           })}
@@ -428,8 +430,8 @@ export default function Home() {
                 One menu for every category.
               </h2>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-600">
-                Select a category from the colorful menu below and explore a focused
-                collection with 25+ curated products and clean browsing.
+                Select a category from the colorful menu below and explore a
+                focused collection with 25+ curated products and clean browsing.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -466,11 +468,11 @@ export default function Home() {
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           {brandPartners.map((brand, index) => {
             const colors = [
-              'from-red-100 to-pink-100 border-red-200 hover:from-red-200 hover:to-pink-200',
-              'from-orange-100 to-yellow-100 border-orange-200 hover:from-orange-200 hover:to-yellow-200',
-              'from-green-100 to-emerald-100 border-green-200 hover:from-green-200 hover:to-emerald-200',
-              'from-blue-100 to-cyan-100 border-blue-200 hover:from-blue-200 hover:to-cyan-200',
-              'from-purple-100 to-indigo-100 border-purple-200 hover:from-purple-200 hover:to-indigo-200'
+              "from-red-100 to-pink-100 border-red-200 hover:from-red-200 hover:to-pink-200",
+              "from-orange-100 to-yellow-100 border-orange-200 hover:from-orange-200 hover:to-yellow-200",
+              "from-green-100 to-emerald-100 border-green-200 hover:from-green-200 hover:to-emerald-200",
+              "from-blue-100 to-cyan-100 border-blue-200 hover:from-blue-200 hover:to-cyan-200",
+              "from-purple-100 to-indigo-100 border-purple-200 hover:from-purple-200 hover:to-indigo-200",
             ];
             return (
               <div
@@ -478,7 +480,9 @@ export default function Home() {
                 className={`rounded-[1.75rem] border-2 bg-gradient-to-br ${colors[index % colors.length]} p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg`}
                 style={{ transitionDelay: `${index * 50}ms` }}
               >
-                <p className="text-lg font-semibold text-gray-800">{brand.name}</p>
+                <p className="text-lg font-semibold text-gray-800">
+                  {brand.name}
+                </p>
                 <p className="mt-2 text-sm text-gray-600">{brand.caption}</p>
               </div>
             );
