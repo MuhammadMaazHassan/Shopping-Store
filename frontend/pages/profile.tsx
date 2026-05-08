@@ -1,15 +1,38 @@
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
-import { Package, User, Clock, MapPin, CheckCircle, Truck, Edit3, Settings } from "lucide-react";
+import Image from "next/image";
+import {
+  Package,
+  User,
+  Clock,
+  MapPin,
+  CheckCircle,
+  Truck,
+  Edit3,
+  Settings,
+  ShoppingBag,
+  Award,
+  Calendar,
+  ChevronRight,
+  CreditCard,
+  Home,
+  LogOut,
+  X,
+  Mail,
+  Phone,
+  Map,
+  Hash,
+  Lock,
+} from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function ProfilePage() {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  
+
   // Edit Profile State
   const [editForm, setEditForm] = useState({
     name: "",
@@ -17,10 +40,23 @@ export default function ProfilePage() {
     phone: "",
     address: "",
     areaCode: "",
-    password: ""
+    password: "",
   });
   const [editSuccess, setEditSuccess] = useState(false);
   const [editError, setEditError] = useState("");
+
+  // Stats
+  const totalOrders = orders.length;
+  const totalSpent = orders.reduce(
+    (sum, order) => sum + (order.totalPrice || 0),
+    0,
+  );
+  const memberSince = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+      })
+    : "Recent";
 
   useEffect(() => {
     if (user) {
@@ -30,7 +66,7 @@ export default function ProfilePage() {
         phone: user.phone || "",
         address: user.address || "",
         areaCode: user.areaCode || "",
-        password: ""
+        password: "",
       });
       fetchOrders();
     } else {
@@ -42,7 +78,7 @@ export default function ProfilePage() {
     if (!user) return;
     try {
       const res = await fetch("http://localhost:5000/api/orders/myorders", {
-        headers: { Authorization: `Bearer ${user.token}` }
+        headers: { Authorization: `Bearer ${user.token}` },
       });
       const data = await res.json();
       if (res.ok) {
@@ -64,13 +100,13 @@ export default function ProfilePage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${user?.token}`
+          Authorization: `Bearer ${user?.token}`,
         },
-        body: JSON.stringify(editForm)
+        body: JSON.stringify(editForm),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to update profile");
-      
+
       updateUser({ ...user, ...data, token: user?.token });
       setEditSuccess(true);
       setTimeout(() => {
@@ -84,15 +120,22 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-4xl py-20 px-4 text-center">
-        <div className="mx-auto h-24 w-24 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6">
-          <User size={40} className="text-slate-400" />
+      <div className="min-h-screen bg-bg flex items-center justify-center px-4">
+        <div className="text-center max-w-md animate-fade-in-up">
+          <div className="mx-auto w-24 h-24 bg-surface-soft rounded-full flex items-center justify-center mb-6">
+            <User size={48} className="text-muted" />
+          </div>
+          <h1 className="text-3xl font-bold text-text">Not signed in</h1>
+          <p className="mt-2 text-muted">
+            Please sign in to view your profile and orders.
+          </p>
+          <Link
+            href="/login"
+            className="mt-6 inline-block rounded-full bg-accent px-8 py-3 text-white font-semibold hover:bg-accent-dark transition shadow-lg"
+          >
+            Sign In
+          </Link>
         </div>
-        <h1 className="text-4xl font-bold text-slate-900 dark:text-white">You are not signed in</h1>
-        <p className="mt-4 text-slate-600 dark:text-slate-400 text-lg">Please sign in to view your profile and order history.</p>
-        <Link href="/login" className="mt-8 inline-block rounded-full bg-brand-600 px-8 py-4 text-sm font-bold text-white shadow-lg shadow-brand-500/30 hover:bg-brand-700 transition">
-          Sign In Now
-        </Link>
       </div>
     );
   }
@@ -100,184 +143,411 @@ export default function ProfilePage() {
   return (
     <>
       <Head>
-        <title>Profile & Orders | WonderCart</title>
+        <title>My Profile | WonderCart</title>
+        <meta
+          name="description"
+          content="View your orders, edit your profile, and manage your account at WonderCart."
+        />
       </Head>
 
-      <div className="mx-auto max-w-6xl space-y-10 py-8 px-4 sm:px-6 lg:px-8">
-        
-        {/* Profile Header section */}
-        <div className="rounded-[2.5rem] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 sm:p-12 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-8 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 dark:bg-brand-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-          
-          <img 
-            src={user.avatar || `https://api.dicebear.com/7.x/notionists/svg?seed=${user.name}`} 
-            alt={user.name} 
-            className="h-32 w-32 rounded-full border-4 border-white dark:border-slate-900 shadow-xl bg-brand-100 dark:bg-brand-900 object-cover z-10"
-          />
-          
-          <div className="text-center sm:text-left z-10 space-y-2 flex-1">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-xs font-bold uppercase tracking-widest">
-              <CheckCircle size={14} /> Verified Member
-            </span>
-            <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-              {user.name}
-            </h1>
-            <p className="text-lg text-slate-500 dark:text-slate-400 font-medium">
-              {user.email}
-            </p>
-            {user.phone && <p className="text-sm text-slate-500 dark:text-slate-400">{user.phone}</p>}
-            
-            <div className="pt-4 flex flex-wrap gap-4 justify-center sm:justify-start">
-              <button 
-                onClick={() => setIsEditing(!isEditing)}
-                className={`px-6 py-3 rounded-full text-sm font-bold transition flex items-center gap-2 ${
-                  isEditing 
-                    ? "bg-brand-600 text-white shadow-lg shadow-brand-500/30 hover:bg-brand-700" 
-                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700"
-                }`}
-              >
-                {isEditing ? <Settings size={18} /> : <Edit3 size={18} />}
-                {isEditing ? "Close Editor" : "Edit Profile"}
-              </button>
+      <div className="min-h-screen bg-bg py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Top Stats Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in-up [animation-delay:100ms]">
+            <div className="bg-surface rounded-2xl p-6 shadow-sm border border-border hover:shadow-md transition">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted">Total Orders</p>
+                  <p className="text-3xl font-bold text-text mt-1">
+                    {totalOrders}
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-accent-soft rounded-full flex items-center justify-center">
+                  <ShoppingBag size={24} className="text-accent" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-surface rounded-2xl p-6 shadow-sm border border-border hover:shadow-md transition">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted">Total Spent</p>
+                  <p className="text-3xl font-bold text-text mt-1">
+                    ${totalSpent.toFixed(2)}
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-accent-soft rounded-full flex items-center justify-center">
+                  <CreditCard size={24} className="text-accent" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-surface rounded-2xl p-6 shadow-sm border border-border hover:shadow-md transition">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted">Member Since</p>
+                  <p className="text-xl font-bold text-text mt-1">
+                    {memberSince}
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-accent-soft rounded-full flex items-center justify-center">
+                  <Calendar size={24} className="text-accent" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-surface rounded-2xl p-6 shadow-sm border border-border hover:shadow-md transition">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted">Reward Points</p>
+                  <p className="text-3xl font-bold text-text mt-1">1,250</p>
+                </div>
+                <div className="h-12 w-12 bg-accent-soft rounded-full flex items-center justify-center">
+                  <Award size={24} className="text-accent" />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        {isEditing && (
-          <form onSubmit={handleEditProfile} className="rounded-[2rem] border border-brand-200 dark:border-brand-900/30 bg-white dark:bg-slate-900 p-8 shadow-xl shadow-brand-500/5 animate-fadeInDown">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Edit Profile Details</h2>
-            
-            {editSuccess && (
-              <div className="mb-6 rounded-xl bg-green-50 dark:bg-green-500/10 p-4 text-sm font-bold text-green-600 dark:text-green-400 border border-green-200 dark:border-green-500/20">
-                Profile updated successfully!
+          {/* Profile Section */}
+          <div className="bg-surface rounded-2xl border border-border shadow-sm overflow-hidden animate-fade-in-up [animation-delay:200ms]">
+            <div className="relative h-32 bg-gradient-to-r from-accent to-accent-dark">
+              <div className="absolute -bottom-12 left-6 flex items-end gap-4">
+                <div className="relative">
+                  <Image
+                    src={
+                      user.avatar ||
+                      `https://api.dicebear.com/7.x/notionists/svg?seed=${user.name}`
+                    }
+                    alt={user.name}
+                    width={96}
+                    height={96}
+                    className="rounded-full border-4 border-surface shadow-lg object-cover"
+                  />
+                  <button className="absolute bottom-0 right-0 bg-surface rounded-full p-1 shadow-md border border-border">
+                    <Edit3 size={14} className="text-accent" />
+                  </button>
+                </div>
+                <div className="mb-2">
+                  <h1 className="text-2xl font-bold text-text">{user.name}</h1>
+                  <p className="text-muted text-sm flex items-center gap-1">
+                    <Mail size={14} /> {user.email}
+                  </p>
+                </div>
               </div>
-            )}
-            {editError && (
-              <div className="mb-6 rounded-xl bg-red-50 dark:bg-red-500/10 p-4 text-sm font-bold text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/20">
-                {editError}
+              <div className="absolute top-4 right-4 flex gap-2">
+                <button
+                  onClick={() => setIsEditing(!isEditing)}
+                  className="bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-semibold text-white hover:bg-white/30 transition flex items-center gap-2"
+                >
+                  {isEditing ? <X size={16} /> : <Edit3 size={16} />}
+                  {isEditing ? "Cancel" : "Edit Profile"}
+                </button>
+                <button
+                  onClick={logout}
+                  className="bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-semibold text-white hover:bg-white/30 transition flex items-center gap-2"
+                >
+                  <LogOut size={16} /> Logout
+                </button>
               </div>
-            )}
-
-            <div className="grid sm:grid-cols-2 gap-6">
-              <label className="block space-y-2">
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Name</span>
-                <input value={editForm.name} onChange={e => setEditForm({...editForm, name: e.target.value})} className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-brand-500" />
-              </label>
-              <label className="block space-y-2">
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Email</span>
-                <input value={editForm.email} onChange={e => setEditForm({...editForm, email: e.target.value})} className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-brand-500" />
-              </label>
-              <label className="block space-y-2">
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Phone</span>
-                <input value={editForm.phone} onChange={e => setEditForm({...editForm, phone: e.target.value})} className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-brand-500" />
-              </label>
-              <label className="block space-y-2">
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Address</span>
-                <input value={editForm.address} onChange={e => setEditForm({...editForm, address: e.target.value})} className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-brand-500" />
-              </label>
-              <label className="block space-y-2">
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Area Code / ZIP</span>
-                <input value={editForm.areaCode} onChange={e => setEditForm({...editForm, areaCode: e.target.value})} className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-brand-500" />
-              </label>
-              <label className="block space-y-2">
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">New Password (Optional)</span>
-                <input type="password" value={editForm.password} onChange={e => setEditForm({...editForm, password: e.target.value})} placeholder="Leave blank to keep current" className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-brand-500" />
-              </label>
             </div>
-            <div className="mt-8 flex justify-end">
-              <button type="submit" className="rounded-full bg-brand-600 px-8 py-3.5 text-sm font-bold text-white transition hover:bg-brand-700 shadow-lg shadow-brand-500/30">
-                Save Changes
-              </button>
-            </div>
-          </form>
-        )}
-
-        {/* Orders Section */}
-        <div id="orders" className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-              <Package className="text-brand-600 dark:text-brand-400" /> Order History
-            </h2>
-            <span className="px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-bold">
-              {orders.length} Orders
-            </span>
-          </div>
-
-          {isLoading ? (
-            <div className="text-center py-20">
-              <div className="mx-auto h-10 w-10 border-4 border-slate-200 border-t-brand-600 rounded-full animate-spin"></div>
-            </div>
-          ) : orders.length === 0 ? (
-            <div className="rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-slate-800 p-16 text-center">
-              <Package size={48} className="mx-auto text-slate-300 dark:text-slate-600 mb-6" />
-              <p className="text-xl font-bold text-slate-900 dark:text-white">No orders yet</p>
-              <p className="mt-2 text-slate-500 dark:text-slate-400">When you buy something, it will appear here.</p>
-              <Link href="/#shop" className="mt-6 inline-block rounded-full bg-slate-900 dark:bg-white px-6 py-3 text-sm font-bold text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition">
-                Start Shopping
-              </Link>
-            </div>
-          ) : (
-            <div className="grid gap-6">
-              {orders.map((order, idx) => (
-                <div key={idx} className="rounded-[2rem] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
-                  {/* Order Header */}
-                  <div className="bg-slate-50 dark:bg-slate-950 p-6 sm:px-8 border-b border-slate-200 dark:border-slate-800 flex flex-wrap justify-between items-center gap-6">
-                    <div>
-                      <p className="text-sm font-bold text-slate-900 dark:text-white">Order #{order._id}</p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2">
-                        <Clock size={14} /> {new Date(order.createdAt).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Amount</p>
-                      <p className="text-xl font-black text-brand-600 dark:text-brand-400">${order.totalPrice?.toFixed(2) || '0.00'}</p>
-                    </div>
+            <div className="pt-16 pb-6 px-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                {user.phone && (
+                  <div className="flex items-center gap-2 text-muted">
+                    <Phone size={16} className="text-accent" /> {user.phone}
                   </div>
+                )}
+                {user.address && user.areaCode && (
+                  <div className="flex items-center gap-2 text-muted">
+                    <Home size={16} className="text-accent" /> {user.address},{" "}
+                    {user.areaCode}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
 
-                  {/* Order Details: Items & Delivery */}
-                  <div className="p-6 sm:p-8 grid lg:grid-cols-[2fr_1fr] gap-8">
-                    
-                    {/* Items List */}
-                    <div className="space-y-4">
-                      <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-widest mb-4">Items Ordered</h3>
-                      {order.orderItems?.map((item: any, i: number) => (
-                        <div key={i} className="flex items-center gap-4 bg-slate-50/50 dark:bg-slate-800/30 p-3 rounded-2xl border border-slate-100 dark:border-slate-800/50">
-                          <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover bg-white dark:bg-slate-800" />
-                          <div className="flex-1">
-                            <p className="font-bold text-slate-900 dark:text-white line-clamp-1">{item.name}</p>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">Qty: {item.quantity}</p>
-                          </div>
-                          <p className="font-bold text-slate-700 dark:text-slate-300 pr-4">${(item.price * item.quantity).toFixed(2)}</p>
-                        </div>
-                      ))}
-                    </div>
+          {/* Edit Profile Modal / Inline Form */}
+          {isEditing && (
+            <div className="bg-surface rounded-2xl border border-border shadow-lg p-6 animate-fade-in-up">
+              <h2 className="text-xl font-bold text-text mb-4 flex items-center gap-2">
+                <Settings size={20} className="text-accent" /> Edit Profile
+              </h2>
+              {editSuccess && (
+                <div className="mb-4 p-3 rounded-xl bg-accent-soft text-accent-dark text-sm font-medium">
+                  ✅ Profile updated successfully!
+                </div>
+              )}
+              {editError && (
+                <div className="mb-4 p-3 rounded-xl bg-red-50 text-red-600 text-sm font-medium">
+                  ⚠️ {editError}
+                </div>
+              )}
+              <form onSubmit={handleEditProfile} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-text mb-1">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.name}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, name: e.target.value })
+                      }
+                      className="w-full rounded-xl border border-border bg-surface-soft px-4 py-2.5 text-text focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text mb-1">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={editForm.email}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, email: e.target.value })
+                      }
+                      className="w-full rounded-xl border border-border bg-surface-soft px-4 py-2.5 text-text focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text mb-1">
+                      Phone
+                    </label>
+                    <input
+                      type="tel"
+                      value={editForm.phone}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, phone: e.target.value })
+                      }
+                      className="w-full rounded-xl border border-border bg-surface-soft px-4 py-2.5 text-text focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text mb-1">
+                      Address
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.address}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, address: e.target.value })
+                      }
+                      className="w-full rounded-xl border border-border bg-surface-soft px-4 py-2.5 text-text focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text mb-1">
+                      Area Code / ZIP
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.areaCode}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, areaCode: e.target.value })
+                      }
+                      className="w-full rounded-xl border border-border bg-surface-soft px-4 py-2.5 text-text focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text mb-1">
+                      New Password (optional)
+                    </label>
+                    <input
+                      type="password"
+                      value={editForm.password}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, password: e.target.value })
+                      }
+                      placeholder="Leave blank to keep current"
+                      className="w-full rounded-xl border border-border bg-surface-soft px-4 py-2.5 text-text focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(false)}
+                    className="px-6 py-2 rounded-full border border-border text-muted hover:bg-surface-soft transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2 rounded-full bg-accent text-white font-semibold hover:bg-accent-dark transition shadow-md"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
 
-                    {/* Delivery & Address */}
-                    <div className="space-y-6">
+          {/* Orders Section */}
+          <div className="space-y-6 animate-fade-in-up [animation-delay:300ms]">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <h2 className="text-2xl font-bold text-text flex items-center gap-2">
+                <Package size={24} className="text-accent" /> Order History
+              </h2>
+              <span className="px-4 py-1.5 rounded-full bg-surface-soft text-accent-dark text-sm font-semibold">
+                {totalOrders} {totalOrders === 1 ? "order" : "orders"}
+              </span>
+            </div>
+
+            {isLoading ? (
+              <div className="flex justify-center py-20">
+                <div className="w-10 h-10 border-4 border-border border-t-accent rounded-full animate-spin"></div>
+              </div>
+            ) : orders.length === 0 ? (
+              <div className="bg-surface rounded-2xl border border-border p-12 text-center">
+                <Package size={48} className="mx-auto text-muted mb-4" />
+                <p className="text-text font-semibold text-lg">No orders yet</p>
+                <p className="text-muted mt-1">
+                  When you place an order, it will appear here.
+                </p>
+                <Link
+                  href="/"
+                  className="mt-6 inline-block rounded-full bg-accent px-6 py-2.5 text-white font-medium hover:bg-accent-dark transition"
+                >
+                  Start Shopping
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {orders.map((order) => (
+                  <div
+                    key={order._id}
+                    className="bg-surface rounded-2xl border border-border shadow-sm hover:shadow-md transition overflow-hidden"
+                  >
+                    {/* Order Header */}
+                    <div className="bg-surface-soft px-6 py-4 border-b border-border flex flex-wrap justify-between items-center gap-4">
                       <div>
-                        <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2 mb-3">
-                          <MapPin size={16} className="text-brand-600" /> Shipping Address
-                        </h3>
-                        {order.shippingAddress ? (
-                          <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-300 space-y-1">
-                            <p className="font-bold text-slate-900 dark:text-white">{order.shippingAddress.fullName}</p>
-                            <p>{order.shippingAddress.street}</p>
-                            <p>{order.shippingAddress.city}, {order.shippingAddress.zip}</p>
-                          </div>
-                        ) : (
-                          <p className="text-sm text-slate-500">No address provided.</p>
-                        )}
+                        <p className="text-sm font-mono text-muted">
+                          Order #{order._id?.slice(-8)}
+                        </p>
+                        <p className="text-xs text-muted flex items-center gap-1 mt-1">
+                          <Clock size={12} />{" "}
+                          {new Date(order.createdAt).toLocaleDateString(
+                            "en-US",
+                            { year: "numeric", month: "short", day: "numeric" },
+                          )}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <p className="text-xs text-muted uppercase">Total</p>
+                          <p className="text-xl font-bold text-accent-dark">
+                            ${order.totalPrice?.toFixed(2)}
+                          </p>
+                        </div>
+                        <div
+                          className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            order.isPaid
+                              ? "bg-accent-soft text-accent-dark"
+                              : "bg-rose-100 text-rose-600"
+                          }`}
+                        >
+                          {order.isPaid ? "Paid" : "Pending"}
+                        </div>
                       </div>
                     </div>
 
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                    {/* Order Body */}
+                    <div className="p-6">
+                      <div className="grid md:grid-cols-2 gap-6">
+                        {/* Items */}
+                        <div>
+                          <h3 className="text-sm font-semibold text-text uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <Truck size={14} className="text-accent" /> Items
+                          </h3>
+                          <div className="space-y-3">
+                            {order.orderItems?.map((item: any, idx: number) => (
+                              <div
+                                key={idx}
+                                className="flex gap-3 items-center"
+                              >
+                                <img
+                                  src={item.image}
+                                  alt={item.name}
+                                  className="w-12 h-12 rounded-lg object-cover bg-surface-soft"
+                                />
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium text-text line-clamp-1">
+                                    {item.name}
+                                  </p>
+                                  <p className="text-xs text-muted">
+                                    Qty: {item.quantity}
+                                  </p>
+                                </div>
+                                <p className="text-sm font-semibold text-text">
+                                  ${(item.price * item.quantity).toFixed(2)}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
 
+                        {/* Shipping Address */}
+                        <div>
+                          <h3 className="text-sm font-semibold text-text uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <MapPin size={14} className="text-accent" />{" "}
+                            Shipping Address
+                          </h3>
+                          {order.shippingAddress ? (
+                            <div className="bg-surface-soft rounded-xl p-3 text-sm text-muted">
+                              <p className="font-medium text-text">
+                                {order.shippingAddress.fullName}
+                              </p>
+                              <p>{order.shippingAddress.street}</p>
+                              <p>
+                                {order.shippingAddress.city},{" "}
+                                {order.shippingAddress.zip}
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted">
+                              No address provided
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-6 pt-4 border-t border-border flex justify-between items-center">
+                        <Link
+                          href={`/order/${order._id}`}
+                          className="text-sm text-accent hover:underline flex items-center gap-1"
+                        >
+                          View details <ChevronRight size={14} />
+                        </Link>
+                        {!order.isPaid && (
+                          <button className="text-sm bg-accent text-white px-4 py-1.5 rounded-full hover:bg-accent-dark transition">
+                            Pay Now
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
+
+      <style jsx global>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in-up {
+          animation: fadeInUp 0.5s ease forwards;
+        }
+      `}</style>
     </>
   );
 }

@@ -201,3 +201,5 @@ export default products;
 
 fs.writeFileSync("../data/products.ts", output, "utf-8");
 console.log("Generated products.ts with", products.length, "products.");
+
+

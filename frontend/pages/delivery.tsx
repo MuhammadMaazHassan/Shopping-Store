@@ -8,8 +8,8 @@ export default function DeliveryPage() {
         <title>Delivery & Shipping | WonderCart</title>
       </Head>
 
-      <div className="mx-auto max-w-4xl space-y-8">
-        <div className="rounded-[2rem] border border-slate-200 bg-gradient-to-br from-brand-50 to-white p-10 shadow-sm">
+      <div className="mx-auto max-w-4xl space-y-8 bg-white">
+        <div className="rounded-[2rem] border border-slate-200 bg-white p-10 shadow-sm">
           <h1 className="text-4xl font-semibold text-slate-900">
             Fast & Reliable Delivery
           </h1>
@@ -27,7 +27,7 @@ export default function DeliveryPage() {
               price: "FREE",
               description:
                 "Perfect for non-urgent orders. Your items arrive safely and on schedule.",
-              color: "border-blue-200 bg-blue-50",
+              color: "border-green-200 bg-green-50",
               icon: "📦",
             },
             {
@@ -36,7 +36,7 @@ export default function DeliveryPage() {
               price: "$9.99",
               description:
                 "For when you need your items sooner. Priority processing and fast shipping.",
-              color: "border-orange-200 bg-orange-50",
+              color: "border-green-200 bg-green-50",
               icon: "🚚",
             },
             {
@@ -108,7 +108,7 @@ export default function DeliveryPage() {
               },
             ].map((step) => (
               <div key={step.num} className="flex gap-6">
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-brand-600 text-white font-bold">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-green-600 text-white font-bold">
                   {step.num}
                 </div>
                 <div>
@@ -139,7 +139,7 @@ export default function DeliveryPage() {
         <div className="text-center">
           <Link
             href="/"
-            className="inline-flex rounded-full bg-brand-600 px-8 py-4 text-sm font-semibold text-white transition hover:bg-brand-700"
+            className="inline-flex rounded-full bg-green-600 px-8 py-4 text-sm font-semibold text-white transition hover:bg-green-700"
           >
             Back to shopping
           </Link>

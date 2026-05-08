@@ -3,16 +3,18 @@
 @tailwind utilities;
 
 :root {
-  --bg: #f8faf9;
-  --surface: #ffffff;
-  --surface-soft: #eff7ef;
-  --surface-strong: #d9f1d7;
-  --text: #0f172a;
-  --muted: #475569;
-  --accent: #22c55e;
-  --accent-dark: #15803d;
-  --accent-soft: #dcfce7;
-  --border: #d1fae5;
+  :root {
+    --surface: #ffffff; /* pure white – cards, containers */
+    --surface-soft: #f5f2e8; /* soft cream – subtle section backgrounds */
+    --surface-strong: #eae3d4; /* deeper cream – dividers, active states */
+    --text: #1e2a1e; /* dark forest green – primary text */
+    --muted: #5a6b5a; /* sage green‑gray – secondary text */
+    --accent: #2c6e2c; /* vibrant deep green – buttons, links, badges */
+    --accent-dark: #1c4a1c; /* very dark green – hover states, footers */
+    --accent-soft: #e6f0e6; /* pale green – badge backgrounds, soft highlights */
+    --border: #dcd5c4; /* cream border – dividers, outlines */
+  }
+
   font-family:
     Inter,
     ui-sans-serif,
@@ -242,4 +244,32 @@ button:hover {
 
 button:active {
   transform: translateY(0);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-up {
+  animation: fadeInUp 0.7s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
 }

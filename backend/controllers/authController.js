@@ -8,15 +8,26 @@ const registerUser = async (req, res) => {
   try {
     const { name, email, password, phone, address, areaCode } = req.body;
     if (!name || !email || !password || !phone || !address || !areaCode) {
-      return res.status(400).json({ message: "All fields are required for registration." });
+      return res
+        .status(400)
+        .json({ message: "All fields are required for registration." });
     }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({ message: "User already exists with this email." });
+      return res
+        .status(400)
+        .json({ message: "User already exists with this email." });
     }
 
-    const user = await User.create({ name, email, password, phone, address, areaCode });
+    const user = await User.create({
+      name,
+      email,
+      password,
+      phone,
+      address,
+      areaCode,
+    });
     res.status(201).json({
       _id: user._id,
       name: user.name,
@@ -33,6 +44,7 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   try {
+    console.log("Login request body:", req.body);
     const { email, password } = req.body;
     const user = await User.findOne({ email });
 
@@ -50,6 +62,7 @@ const loginUser = async (req, res) => {
 
     res.status(401).json({ message: "Invalid credentials" });
   } catch (error) {
+    console.error("Login error:", error);
     res.status(500).json({ message: error.message || "Server error" });
   }
 };
