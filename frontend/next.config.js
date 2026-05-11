@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+
+  // API proxy to your backend server
   async rewrites() {
     return [
       {
@@ -9,6 +11,8 @@ const nextConfig = {
       },
     ];
   },
+
+  // Image optimization – allow external domains
   images: {
     remotePatterns: [
       {

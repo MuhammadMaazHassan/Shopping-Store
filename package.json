@@ -21,5 +21,8 @@
     "express"
   ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "tailwindcss-animate": "^1.0.7"
+  }
 }

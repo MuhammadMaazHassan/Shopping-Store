@@ -15,6 +15,7 @@ interface User {
   phone?: string;
   address?: string;
   areaCode?: string;
+  createdAt?: string | Date;
   token?: string;
 }
 

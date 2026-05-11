@@ -35,6 +35,7 @@ const registerUser = async (req, res) => {
       phone: user.phone,
       address: user.address,
       areaCode: user.areaCode,
+      createdAt: user.createdAt,
       token: generateToken(user._id),
     });
   } catch (error) {
@@ -56,6 +57,7 @@ const loginUser = async (req, res) => {
         phone: user.phone,
         address: user.address,
         areaCode: user.areaCode,
+        createdAt: user.createdAt,
         token: generateToken(user._id),
       });
     }
