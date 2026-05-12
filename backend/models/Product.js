@@ -28,6 +28,17 @@ const ProductSchema = new mongoose.Schema(
       weight: String,
       style: String,
     },
+    reviews: [
+      {
+        name: { type: String, required: true },
+        email: { type: String },
+        rating: { type: Number, required: true, default: 5 },
+        title: { type: String },
+        comment: { type: String, required: true },
+        images: [{ type: String }],
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   {
     timestamps: true,

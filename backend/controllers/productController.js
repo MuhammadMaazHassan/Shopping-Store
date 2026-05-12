@@ -221,6 +221,41 @@ const getProductById = async (req, res) => {
   res.json(product);
 };
 
+const addProductReview = async (req, res) => {
+  const product = await Product.findById(req.params.id);
+  if (!product) {
+    return res.status(404).json({ message: "Product not found" });
+  }
+
+  const { name, email, rating, title, comment, images } = req.body;
+  if (!name || !comment || !rating) {
+    return res
+      .status(400)
+      .json({ message: "Name, rating, and comment are required." });
+  }
+
+  const review = {
+    name,
+    email: email || "Guest shopper",
+    rating: Number(rating),
+    title: title || "Great product",
+    comment,
+    images: Array.isArray(images) ? images : [],
+    createdAt: new Date(),
+  };
+
+  product.reviews = [review, ...(product.reviews || [])];
+  product.numReviews = product.reviews.length;
+  product.rating =
+    product.reviews.reduce((sum, reviewItem) => sum + reviewItem.rating, 0) /
+    product.reviews.length;
+
+  await product.save();
+  res
+    .status(201)
+    .json({ message: "Review added", review, reviews: product.reviews });
+};
+
 const seedProducts = async (req, res) => {
   const count = await Product.countDocuments();
   if (count > 0) {
@@ -233,6 +268,7 @@ const seedProducts = async (req, res) => {
 module.exports = {
   getProducts,
   getProductById,
+  addProductReview,
   seedProducts,
   seedSampleProducts,
 };

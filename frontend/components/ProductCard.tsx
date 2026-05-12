@@ -2,7 +2,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import PropTypes from "prop-types";
 
@@ -54,7 +53,7 @@ const AddToCartButton = ({ onClick, isAdding, outOfStock }) => {
       <button
         type="button"
         disabled
-        className="cursor-not-allowed rounded-full bg-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-500"
+        className="cursor-not-allowed rounded-full bg-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-500 dark:bg-slate-800 dark:text-slate-400"
       >
         Out of stock
       </button>
@@ -134,7 +133,7 @@ const ProductCard = ({ product, onAddToCart }) => {
   };
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl">
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl dark:border-slate-800 dark:bg-slate-950">
       {/* Added to cart toast feedback */}
       <div
         className={`absolute left-1/2 top-4 z-20 -translate-x-1/2 transform rounded-full bg-emerald-500 px-3 py-1 text-xs font-medium text-white shadow-lg transition-all duration-300 ${
@@ -149,22 +148,21 @@ const ProductCard = ({ product, onAddToCart }) => {
       {/* Product image with zoom on hover */}
       <Link
         href={`/product/${product._id}`}
-        className="relative block h-72 w-full overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200"
+        className="relative block h-72 w-full overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800"
       >
         {!imageError ? (
-          <Image
+          <img
             src={product.image}
             alt={product.name}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             onError={() => setImageError(true)}
-            priority={false}
             loading="lazy"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-slate-100">
-            <span className="text-sm text-slate-400">Image unavailable</span>
+          <div className="flex h-full w-full items-center justify-center bg-slate-100 dark:bg-slate-900">
+            <span className="text-sm text-slate-400 dark:text-slate-400">
+              Image unavailable
+            </span>
           </div>
         )}
 
@@ -203,12 +201,14 @@ const ProductCard = ({ product, onAddToCart }) => {
               )}
             </div>
             <Link href={`/product/${product._id}`}>
-              <h3 className="line-clamp-2 text-base font-semibold text-slate-900 transition-colors hover:text-brand-700">
+              <h3 className="line-clamp-2 text-base font-semibold text-slate-900 transition-colors hover:text-brand-700 dark:text-slate-100 dark:hover:text-brand-300">
                 {product.name}
               </h3>
             </Link>
             {product.brand && (
-              <p className="mt-0.5 text-xs text-slate-500">{product.brand}</p>
+              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                {product.brand}
+              </p>
             )}
           </div>
 
@@ -234,13 +234,13 @@ const ProductCard = ({ product, onAddToCart }) => {
         {/* Rating */}
         <div className="mb-3 flex items-center gap-2">
           <StarRating rating={product.rating} />
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-slate-500 dark:text-slate-400">
             ({product.numReviews} reviews)
           </span>
         </div>
 
         {/* Description */}
-        <p className="line-clamp-2 text-sm leading-relaxed text-slate-600">
+        <p className="line-clamp-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
           {product.description}
         </p>
 
@@ -255,24 +255,24 @@ const ProductCard = ({ product, onAddToCart }) => {
 
         {/* Delivery options (if provided) */}
         {product.delivery && (
-          <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl bg-slate-50 p-3">
+          <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl bg-slate-50 p-3 dark:bg-slate-900">
             <div className="text-center text-[11px]">
-              <p className="font-semibold text-slate-700">
+              <p className="font-semibold text-slate-700 dark:text-slate-100">
                 {product.delivery.standard}d
               </p>
-              <p className="text-slate-500">Standard</p>
+              <p className="text-slate-500 dark:text-slate-400">Standard</p>
             </div>
             <div className="text-center text-[11px]">
-              <p className="font-semibold text-slate-700">
+              <p className="font-semibold text-slate-700 dark:text-slate-100">
                 {product.delivery.express}d
               </p>
-              <p className="text-slate-500">Express</p>
+              <p className="text-slate-500 dark:text-slate-400">Express</p>
             </div>
             <div className="text-center text-[11px]">
-              <p className="font-semibold text-slate-700">
+              <p className="font-semibold text-slate-700 dark:text-slate-100">
                 {product.delivery.overnight}d
               </p>
-              <p className="text-slate-500">Overnight</p>
+              <p className="text-slate-500 dark:text-slate-400">Overnight</p>
             </div>
           </div>
         )}

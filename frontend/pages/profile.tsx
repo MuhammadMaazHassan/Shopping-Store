@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
-import Image from "next/image";
 import {
   Package,
   User,
@@ -211,7 +210,7 @@ export default function ProfilePage() {
             <div className="relative h-32 bg-gradient-to-r from-accent to-accent-dark">
               <div className="absolute -bottom-12 left-6 flex items-end gap-4">
                 <div className="relative">
-                  <Image
+                  <img
                     src={
                       user.avatar ||
                       `https://api.dicebear.com/7.x/notionists/svg?seed=${user.name}`

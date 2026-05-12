@@ -11,7 +11,6 @@ import {
   Settings,
   LogOut,
   ShoppingBag,
-  Sparkles,
   Menu,
   X,
   Search,
@@ -56,7 +55,6 @@ export default function Navbar({ itemCount }: { itemCount: number }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -86,12 +84,6 @@ export default function Navbar({ itemCount }: { itemCount: number }) {
       const target = event.target as Node;
       if (dropdownRef.current && !dropdownRef.current.contains(target)) {
         setIsDropdownOpen(false);
-      }
-      if (
-        notificationRef.current &&
-        !notificationRef.current.contains(target)
-      ) {
-        setIsNotificationsOpen(false);
       }
       if (
         mobileMenuRef.current &&
@@ -222,55 +214,14 @@ export default function Navbar({ itemCount }: { itemCount: number }) {
 
             {/* Notifications */}
             <div className="relative" ref={notificationRef}>
-              <button
-                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+              <Link
+                href="/notifications"
                 className="relative rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                 aria-label="View notifications"
               >
                 <Bell size={20} />
-                <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-950" />
-              </button>
-
-              {/* Dropdown */}
-              <div
-                className={`absolute right-0 mt-3 w-80 max-w-[calc(100vw-2rem)] origin-top-right rounded-2xl border border-slate-200 bg-white shadow-2xl transition-all duration-200 dark:border-slate-800 dark:bg-slate-950 ${
-                  isNotificationsOpen
-                    ? "pointer-events-auto scale-100 opacity-100"
-                    : "pointer-events-none scale-95 opacity-0"
-                }`}
-              >
-                <div className="rounded-t-2xl bg-brand-600 px-5 py-4 text-white">
-                  <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.24em]">
-                    <Sparkles size={16} /> Live updates
-                  </div>
-                  <p className="mt-2 text-sm text-brand-100">
-                    Stay in the loop with every global launch.
-                  </p>
-                </div>
-                <div className="max-h-96 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-800">
-                  {notifications.map((note) => (
-                    <div
-                      key={note.id}
-                      className={`cursor-pointer px-5 py-4 transition-colors hover:bg-slate-50 dark:hover:bg-slate-900 ${
-                        note.unread ? "bg-brand-50/50 dark:bg-brand-950/20" : ""
-                      }`}
-                    >
-                      <p className="font-semibold text-slate-900 dark:text-slate-100">
-                        {note.title}
-                      </p>
-                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                        {note.description}
-                      </p>
-                      <p className="mt-3 text-xs uppercase tracking-[0.24em] text-slate-400 dark:text-slate-500">
-                        {note.time}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-                <div className="rounded-b-2xl border-t border-slate-100 bg-slate-50 px-5 py-3 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-400">
-                  New updates every hour for trending collections.
-                </div>
-              </div>
+                <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-950 animate-pulse" />
+              </Link>
             </div>
 
             <div className="mx-1 hidden h-6 w-px bg-slate-200 dark:bg-slate-700 sm:block" />

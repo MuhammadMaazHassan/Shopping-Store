@@ -9,7 +9,6 @@ import {
 } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import Image from "next/image";
 import { type Product } from "../data/products";
 import { CartContext } from "../contexts/CartContext";
 import ProductCard from "../components/ProductCard";
@@ -85,9 +84,13 @@ const useScrollReveal = () => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
+        entries.forEach((entry, index) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add("animate-fade-up");
+            // Add staggered animation delay
+            const delay = index * 150; // 150ms stagger
+            setTimeout(() => {
+              entry.target.classList.add("animate-fade-up");
+            }, delay);
             observer.unobserve(entry.target);
           }
         });
@@ -286,13 +289,10 @@ export default function Home() {
       <section className="relative h-[85vh] min-h-[600px] w-full overflow-hidden">
         {/* Background Image with fade transition */}
         <div className="absolute inset-0 transition-opacity duration-1000 ease-in-out">
-          <Image
+          <img
             src={currentSlideData.image}
             alt={currentSlideData.title}
-            fill
-            priority
-            className="object-cover"
-            sizes="100vw"
+            className="h-full w-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
         </div>
@@ -300,26 +300,26 @@ export default function Home() {
         {/* Content */}
         <div className="relative mx-auto flex h-full max-w-7xl items-center px-4 sm:px-6 lg:px-20">
           <div className="max-w-2xl text-white animate-fade-in-up">
-            <p className="mb-3 text-sm uppercase tracking-[0.3em] text-accent-soft">
+            <p className="mb-3 text-sm uppercase tracking-[0.3em] text-accent-soft animate-slide-in-left [animation-delay:200ms] opacity-0">
               {currentSlideData.category}
             </p>
-            <h1 className="mb-4 text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
+            <h1 className="mb-4 text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl animate-slide-in-right [animation-delay:400ms] opacity-0">
               {currentSlideData.title}
             </h1>
-            <p className="mb-8 text-base leading-relaxed text-white/90 sm:text-lg">
+            <p className="mb-8 text-base leading-relaxed text-white/90 sm:text-lg animate-fade-in [animation-delay:600ms] opacity-0">
               {currentSlideData.subtitle}
             </p>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 animate-scale-in [animation-delay:800ms] opacity-0">
               <button
                 type="button"
                 onClick={() => navigateCategory(currentSlideData.category)}
-                className="rounded-full bg-accent px-8 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:scale-105 hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
+                className="rounded-full bg-accent px-8 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:scale-105 hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 animate-bounce-in"
               >
                 Shop Now →
               </button>
               <Link
                 href={currentSlideData.link}
-                className="rounded-full bg-white/20 backdrop-blur-sm px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-white/30"
+                className="rounded-full bg-white/20 backdrop-blur-sm px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-white/30 animate-float"
               >
                 Learn More
               </Link>
@@ -399,14 +399,16 @@ export default function Home() {
             return (
               <div
                 key={highlight.title}
-                className={`rounded-2xl border-2 ${colors[idx]} p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg`}
-                style={{ transitionDelay: `${idx * 100}ms` }}
+                className={`rounded-2xl border-2 ${colors[idx]} p-6 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-lg animate-scale-in opacity-0`}
+                style={{ animationDelay: `${(idx + 1) * 200}ms` }}
               >
-                <div className="text-3xl mb-3">{highlight.icon}</div>
-                <h3 className="text-lg font-semibold text-gray-800">
+                <div className="text-3xl mb-3 animate-bounce-soft">
+                  {highlight.icon}
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800 animate-fade-in">
                   {highlight.title}
                 </h3>
-                <p className="mt-2 text-sm text-gray-600">
+                <p className="mt-2 text-sm text-gray-600 animate-fade-in [animation-delay:100ms]">
                   {highlight.subtitle}
                 </p>
               </div>
@@ -420,25 +422,25 @@ export default function Home() {
         ref={register}
         className="mx-auto mt-10 max-w-7xl px-4 sm:px-6 lg:px-20 opacity-0"
       >
-        <div className="rounded-[2rem] bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-8 shadow-sm transition-all hover:shadow-md border border-blue-100">
+        <div className="rounded-[2rem] bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-8 shadow-sm transition-all hover:shadow-md border border-blue-100 animate-scale-in">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="text-sm uppercase tracking-[0.32em] text-blue-600 font-semibold">
+            <div className="animate-slide-in-left">
+              <p className="text-sm uppercase tracking-[0.32em] text-blue-600 font-semibold animate-fade-in">
                 🌈 Shop by section
               </p>
-              <h2 className="mt-3 text-3xl font-semibold text-gray-800 sm:text-4xl">
+              <h2 className="mt-3 text-3xl font-semibold text-gray-800 sm:text-4xl animate-slide-in-right [animation-delay:200ms]">
                 One menu for every category.
               </h2>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-600">
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-600 animate-fade-in [animation-delay:400ms]">
                 Select a category from the colorful menu below and explore a
                 focused collection with 25+ curated products and clean browsing.
               </p>
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 animate-slide-in-right [animation-delay:600ms]">
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="rounded-full border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50 px-6 py-3 text-sm font-semibold text-gray-700 transition-all hover:border-blue-300 hover:shadow-md focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                className="rounded-full border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50 px-6 py-3 text-sm font-semibold text-gray-700 transition-all hover:border-blue-300 hover:shadow-md focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300 animate-bounce-in"
                 aria-label="Select category"
               >
                 {categoryOptions.map((category) => (
@@ -451,7 +453,7 @@ export default function Home() {
                 type="button"
                 onClick={() => navigateCategory(selectedCategory)}
                 disabled={isNavigating}
-                className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:scale-105 hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 disabled:opacity-70 shadow-lg"
+                className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:scale-105 hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 disabled:opacity-70 shadow-lg animate-pulse-glow"
               >
                 {isNavigating ? "Redirecting..." : `Go to ${selectedCategory}`}
               </button>
@@ -477,13 +479,15 @@ export default function Home() {
             return (
               <div
                 key={brand.name}
-                className={`rounded-[1.75rem] border-2 bg-gradient-to-br ${colors[index % colors.length]} p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg`}
-                style={{ transitionDelay: `${index * 50}ms` }}
+                className={`rounded-[1.75rem] border-2 bg-gradient-to-br ${colors[index % colors.length]} p-6 text-center shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-lg animate-bounce-in opacity-0`}
+                style={{ animationDelay: `${index * 150}ms` }}
               >
-                <p className="text-lg font-semibold text-gray-800">
+                <p className="text-lg font-semibold text-gray-800 animate-fade-in">
                   {brand.name}
                 </p>
-                <p className="mt-2 text-sm text-gray-600">{brand.caption}</p>
+                <p className="mt-2 text-sm text-gray-600 animate-fade-in [animation-delay:100ms]">
+                  {brand.caption}
+                </p>
               </div>
             );
           })}
@@ -495,31 +499,31 @@ export default function Home() {
         ref={register}
         className="mx-auto mt-10 max-w-7xl px-4 sm:px-6 lg:px-20 opacity-0"
       >
-        <div className="rounded-[2rem] bg-gradient-to-r from-green-400 via-teal-500 to-blue-500 p-8 shadow-lg transition-all hover:shadow-xl border-2 border-green-300">
+        <div className="rounded-[2rem] bg-gradient-to-r from-green-400 via-teal-500 to-blue-500 p-8 shadow-lg transition-all hover:shadow-xl border-2 border-green-300 animate-scale-in">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-sm uppercase tracking-[0.32em] text-green-100 font-semibold">
+            <div className="animate-slide-in-left">
+              <p className="text-sm uppercase tracking-[0.32em] text-green-100 font-semibold animate-fade-in">
                 ✨ New arrivals
               </p>
-              <h2 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
+              <h2 className="mt-3 text-3xl font-semibold text-white sm:text-4xl animate-slide-in-right [animation-delay:200ms]">
                 Fresh picks just landed
               </h2>
-              <p className="mt-4 max-w-xl text-sm leading-7 text-white/90">
+              <p className="mt-4 max-w-xl text-sm leading-7 text-white/90 animate-fade-in [animation-delay:400ms]">
                 Discover the latest additions to our collection with exclusive
                 deals and limited-time offers.
               </p>
             </div>
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-3 animate-slide-in-right [animation-delay:600ms]">
               {newArrivals.slice(0, 3).map((product, index) => (
                 <div
                   key={product._id}
-                  className="overflow-hidden rounded-lg bg-white/20 backdrop-blur-sm transition-all duration-300 hover:scale-105 border border-white/30"
-                  style={{ transitionDelay: `${index * 100}ms` }}
+                  className="overflow-hidden rounded-lg bg-white/20 backdrop-blur-sm transition-all duration-500 hover:scale-110 border border-white/30 animate-bounce-in opacity-0"
+                  style={{ animationDelay: `${(index + 1) * 200}ms` }}
                 >
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="h-32 w-full object-cover transition duration-500 hover:scale-110"
+                    className="h-32 w-full object-cover transition duration-500 hover:scale-110 animate-shimmer"
                   />
                 </div>
               ))}
@@ -533,31 +537,32 @@ export default function Home() {
         ref={register}
         className="mx-auto mt-10 max-w-7xl px-4 sm:px-6 lg:px-20 pb-20 opacity-0"
       >
-        <div className="rounded-[2rem] bg-surface p-8 shadow-sm">
-          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-sm uppercase tracking-[0.32em] text-muted">
+        <div className="rounded-[2rem] bg-surface p-8 shadow-sm animate-scale-in">
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between animate-fade-in">
+            <div className="animate-slide-in-left">
+              <p className="text-sm uppercase tracking-[0.32em] text-muted animate-fade-in">
                 Popular picks
               </p>
-              <h2 className="mt-3 text-3xl font-semibold text-text sm:text-4xl">
+              <h2 className="mt-3 text-3xl font-semibold text-text sm:text-4xl animate-slide-in-right [animation-delay:200ms]">
                 Trending products for every shop page
               </h2>
             </div>
-            <p className="max-w-xl text-sm leading-7 text-muted">
+            <p className="max-w-xl text-sm leading-7 text-muted animate-fade-in [animation-delay:400ms]">
               Browse top sellers, flash favorites, and seasonal essentials with
               clean, professional product cards.
             </p>
           </div>
 
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3 animate-fade-in [animation-delay:600ms]">
             {isLoading
               ? Array.from({ length: 6 }).map((_, i) => (
                   <ProductSkeleton key={`skeleton-${i}`} />
                 ))
-              : newArrivals.map((product) => (
+              : newArrivals.map((product, index) => (
                   <div
                     key={product._id}
-                    className="transition-all duration-300 hover:-translate-y-1"
+                    className="transition-all duration-500 hover:-translate-y-2 animate-bounce-in opacity-0"
+                    style={{ animationDelay: `${index * 150}ms` }}
                   >
                     <ProductCard
                       product={product}
@@ -574,27 +579,27 @@ export default function Home() {
         ref={register}
         className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-20 pb-20 opacity-0"
       >
-        <div className="rounded-[2rem] bg-surface-soft p-8 shadow-sm">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <p className="text-sm uppercase tracking-[0.32em] text-accent-dark">
+        <div className="rounded-[2rem] bg-surface-soft p-8 shadow-sm animate-scale-in">
+          <div className="text-center max-w-2xl mx-auto mb-10 animate-fade-in">
+            <p className="text-sm uppercase tracking-[0.32em] text-accent-dark animate-fade-in">
               Testimonials
             </p>
-            <h2 className="mt-3 text-3xl font-semibold text-text sm:text-4xl">
+            <h2 className="mt-3 text-3xl font-semibold text-text sm:text-4xl animate-slide-in-left [animation-delay:200ms]">
               What our customers say
             </h2>
           </div>
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-3 animate-fade-in [animation-delay:400ms]">
             {testimonials.map((testimonial, idx) => (
               <div
                 key={testimonial.name}
-                className="rounded-2xl bg-surface p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
-                style={{ transitionDelay: `${idx * 100}ms` }}
+                className="rounded-2xl bg-surface p-6 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-lg animate-bounce-in opacity-0"
+                style={{ animationDelay: `${idx * 200}ms` }}
               >
-                <div className="flex gap-1 text-yellow-500 mb-3">
+                <div className="flex gap-1 text-yellow-500 mb-3 animate-float">
                   {[...Array(5)].map((_, i) => (
                     <svg
                       key={i}
-                      className={`h-4 w-4 ${
+                      className={`h-4 w-4 animate-pulse ${
                         i < testimonial.rating
                           ? "fill-current"
                           : "fill-gray-200 text-gray-200"
@@ -605,12 +610,16 @@ export default function Home() {
                     </svg>
                   ))}
                 </div>
-                <p className="text-muted text-sm leading-relaxed">
+                <p className="text-muted text-sm leading-relaxed animate-fade-in">
                   "{testimonial.text}"
                 </p>
-                <div className="mt-4 pt-4 border-t border-border">
-                  <p className="font-semibold text-text">{testimonial.name}</p>
-                  <p className="text-xs text-muted">{testimonial.role}</p>
+                <div className="mt-4 pt-4 border-t border-border animate-slide-in-up [animation-delay:300ms]">
+                  <p className="font-semibold text-text animate-fade-in">
+                    {testimonial.name}
+                  </p>
+                  <p className="text-xs text-muted animate-fade-in [animation-delay:100ms]">
+                    {testimonial.role}
+                  </p>
                 </div>
               </div>
             ))}

@@ -1,6 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
 import Head from "next/head";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useAuth } from "../contexts/AuthContext";
@@ -136,13 +135,12 @@ export default function LoginPage() {
             {/* Left Side – Illustration / Image */}
             <div className="hidden lg:block animate-fade-in-up [animation-delay:200ms]">
               <div className="relative rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-accent/10 to-accent-soft shadow-xl">
-                <Image
+                <img
                   src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&h=800&fit=crop"
                   alt="Shopping illustration"
                   width={800}
                   height={800}
                   className="object-cover w-full h-auto"
-                  priority
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex flex-col justify-end p-8">
                   <h2 className="text-3xl font-bold text-white mb-2">
