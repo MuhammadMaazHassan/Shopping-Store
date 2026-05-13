@@ -78,7 +78,7 @@ export default function Navbar({ itemCount }: { itemCount: number }) {
     }
   }, [itemCount, prevItemCount]);
 
-  // Click outside handlers
+  // Click outside handlers 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
@@ -159,11 +159,10 @@ export default function Navbar({ itemCount }: { itemCount: number }) {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`relative text-sm font-semibold transition-colors duration-200 ${
-                    isActiveLink(link.href)
+                  className={`relative text-sm font-semibold transition-colors duration-200 ${isActiveLink(link.href)
                       ? "text-brand-600 dark:text-brand-400"
                       : "text-slate-600 hover:text-brand-600 dark:text-slate-300 dark:hover:text-brand-400"
-                  }`}
+                    }`}
                 >
                   {link.name}
                   {isActiveLink(link.href) && (
@@ -245,11 +244,10 @@ export default function Navbar({ itemCount }: { itemCount: number }) {
                 </button>
 
                 <div
-                  className={`absolute right-0 mt-3 w-64 origin-top-right rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl transition-all duration-200 dark:border-slate-800 dark:bg-slate-900 ${
-                    isDropdownOpen
+                  className={`absolute right-0 mt-3 w-64 origin-top-right rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl transition-all duration-200 dark:border-slate-800 dark:bg-slate-900 ${isDropdownOpen
                       ? "pointer-events-auto scale-100 opacity-100"
                       : "pointer-events-none scale-95 opacity-0"
-                  }`}
+                    }`}
                 >
                   <div className="border-b border-slate-100 px-4 py-3 dark:border-slate-800">
                     <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
@@ -317,11 +315,10 @@ export default function Navbar({ itemCount }: { itemCount: number }) {
 
       {/* Mobile Menu Overlay */}
       <div
-        className={`fixed inset-0 z-50 transition-all duration-300 md:hidden ${
-          isMobileMenuOpen
+        className={`fixed inset-0 z-50 transition-all duration-300 md:hidden ${isMobileMenuOpen
             ? "pointer-events-auto visible opacity-100"
             : "pointer-events-none invisible opacity-0"
-        }`}
+          }`}
       >
         <div
           className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -329,9 +326,8 @@ export default function Navbar({ itemCount }: { itemCount: number }) {
         />
         <div
           ref={mobileMenuRef}
-          className={`absolute right-0 top-0 flex h-full w-80 max-w-[85vw] flex-col bg-white shadow-2xl transition-transform duration-300 dark:bg-slate-950 ${
-            isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
-          }`}
+          className={`absolute right-0 top-0 flex h-full w-80 max-w-[85vw] flex-col bg-white shadow-2xl transition-transform duration-300 dark:bg-slate-950 ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
+            }`}
         >
           <div className="flex items-center justify-between border-b border-slate-200 p-4 dark:border-slate-800">
             <span className="text-xl font-black text-slate-900 dark:text-white">
@@ -376,11 +372,10 @@ export default function Navbar({ itemCount }: { itemCount: number }) {
                 key={link.name}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`mb-1 flex items-center rounded-xl px-3 py-3 text-base font-semibold transition-colors ${
-                  isActiveLink(link.href)
+                className={`mb-1 flex items-center rounded-xl px-3 py-3 text-base font-semibold transition-colors ${isActiveLink(link.href)
                     ? "bg-brand-50 text-brand-600 dark:bg-brand-950/50 dark:text-brand-400"
                     : "text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
-                }`}
+                  }`}
               >
                 {link.name}
               </Link>
@@ -413,20 +408,18 @@ export default function Navbar({ itemCount }: { itemCount: number }) {
 
       {/* Search Modal (Desktop) */}
       <div
-        className={`fixed inset-0 z-50 flex items-start justify-center px-4 pt-20 transition-all duration-200 ${
-          isSearchOpen
+        className={`fixed inset-0 z-50 flex items-start justify-center px-4 pt-20 transition-all duration-200 ${isSearchOpen
             ? "pointer-events-auto visible opacity-100"
             : "pointer-events-none invisible opacity-0"
-        }`}
+          }`}
       >
         <div
           className="absolute inset-0 bg-black/50 backdrop-blur-sm"
           onClick={() => setIsSearchOpen(false)}
         />
         <div
-          className={`relative w-full max-w-2xl transform overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl transition-all duration-300 dark:border-slate-800 dark:bg-slate-950 ${
-            isSearchOpen ? "scale-100 opacity-100" : "scale-95 opacity-0"
-          }`}
+          className={`relative w-full max-w-2xl transform overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl transition-all duration-300 dark:border-slate-800 dark:bg-slate-950 ${isSearchOpen ? "scale-100 opacity-100" : "scale-95 opacity-0"
+            }`}
         >
           <form onSubmit={handleSearch} className="flex items-center p-2">
             <Search className="ml-3 h-5 w-5 text-slate-400" />
