@@ -285,102 +285,54 @@ export default function Home() {
         />
       </Head>
 
-      {/* Hero Slider Section */}
-      <section className="relative h-[85vh] min-h-[600px] w-full overflow-hidden">
-        {/* Background Image with fade transition */}
-        <div className="absolute inset-0 transition-opacity duration-1000 ease-in-out">
-          <img
-            src={currentSlideData.image}
-            alt={currentSlideData.title}
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
-        </div>
-
-        {/* Content */}
-        <div className="relative mx-auto flex h-full max-w-7xl items-center px-4 sm:px-6 lg:px-20">
-          <div className="max-w-2xl text-white animate-fade-in-up">
-            <p className="mb-3 text-sm uppercase tracking-[0.3em] text-accent-soft animate-slide-in-left [animation-delay:200ms] opacity-0">
-              {currentSlideData.category}
-            </p>
-            <h1 className="mb-4 text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl animate-slide-in-right [animation-delay:400ms] opacity-0">
-              {currentSlideData.title}
+      {/* Hero Split Section */}
+      <section className="relative min-h-[70vh] lg:h-[80vh] w-full bg-gradient-to-br from-slate-900 via-slate-950 to-brand-950 overflow-hidden flex items-center py-12 lg:py-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.15),transparent_45%)]" />
+        <div className="absolute -left-20 -bottom-20 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl" />
+        
+        <div className="relative mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Left Text Column */}
+          <div className="text-white z-10 space-y-6 animate-fade-in-up">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-300 text-xs font-semibold tracking-wider uppercase">
+              ✨ Curated Premium Store
+            </div>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
+              Premium Footwear <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-indigo-300">
+                Redefined
+              </span>
             </h1>
-            <p className="mb-8 text-base leading-relaxed text-white/90 sm:text-lg animate-fade-in [animation-delay:600ms] opacity-0">
-              {currentSlideData.subtitle}
+            <p className="text-base sm:text-lg text-slate-300 max-w-lg leading-relaxed">
+              Step into style and absolute comfort with our signature premium shoe collection. Engineered for elegance, crafted for the modern individual.
             </p>
-            <div className="flex flex-wrap gap-4 animate-scale-in [animation-delay:800ms] opacity-0">
+            <div className="flex flex-wrap gap-4 pt-2">
               <button
                 type="button"
-                onClick={() => navigateCategory(currentSlideData.category)}
-                className="rounded-full bg-accent px-8 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:scale-105 hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 animate-bounce-in"
+                onClick={() => navigateCategory("Footwear")}
+                className="rounded-full bg-gradient-to-r from-brand-500 to-indigo-600 px-8 py-4 text-sm font-semibold text-white shadow-lg shadow-brand-500/25 transition-all hover:scale-105 hover:shadow-brand-500/40 focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
-                Shop Now →
+                Shop Footwear →
               </button>
               <Link
-                href={currentSlideData.link}
-                className="rounded-full bg-white/20 backdrop-blur-sm px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-white/30 animate-float"
+                href="/category/All"
+                className="rounded-full bg-white/10 border border-white/20 backdrop-blur-sm px-8 py-4 text-sm font-semibold text-white transition-all hover:bg-white/20 hover:border-white/30"
               >
-                Learn More
+                Explore All
               </Link>
             </div>
           </div>
-        </div>
-
-        {/* Navigation Arrows */}
-        <button
-          onClick={prevSlide}
-          className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/30 p-2 text-white backdrop-blur-sm transition-all hover:bg-black/50 focus:outline-none focus:ring-2 focus:ring-accent"
-          aria-label="Previous slide"
-        >
-          <svg
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </button>
-        <button
-          onClick={nextSlide}
-          className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/30 p-2 text-white backdrop-blur-sm transition-all hover:bg-black/50 focus:outline-none focus:ring-2 focus:ring-accent"
-          aria-label="Next slide"
-        >
-          <svg
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </button>
-
-        {/* Pagination Dots */}
-        <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-2">
-          {slidesToShow.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => goToSlide(idx)}
-              className={`h-2 rounded-full transition-all ${
-                idx === currentSlide
-                  ? "w-8 bg-accent"
-                  : "w-2 bg-white/50 hover:bg-white/80"
-              }`}
-              aria-label={`Go to slide ${idx + 1}`}
-            />
-          ))}
+          
+          {/* Right Complete Image Column */}
+          <div className="relative flex justify-center items-center z-10 animate-fade-in-up [animation-delay:300ms]">
+            <div className="absolute inset-0 bg-gradient-to-tr from-brand-500/20 to-indigo-500/20 rounded-[3rem] blur-2xl opacity-60 animate-pulse-slow" />
+            <div className="relative bg-white/5 border border-white/10 backdrop-blur-md rounded-[2.5rem] p-6 w-full max-w-lg aspect-[4/3] flex items-center justify-center shadow-2xl transition-all hover:scale-[1.02] duration-500">
+              <img
+                src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=max&w=800"
+                alt="Featured Premium Footwear"
+                className="max-h-full max-w-full object-contain filter drop-shadow-[0_20px_50px_rgba(239,68,68,0.3)] animate-float"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -494,39 +446,42 @@ export default function Home() {
         </div>
       </section>
 
-      {/* New Arrivals Banner with Colors */}
+      {/* New Arrivals Banner with Spotlight Complete Image */}
       <section
         ref={register}
         className="mx-auto mt-10 max-w-7xl px-4 sm:px-6 lg:px-20 opacity-0"
       >
-        <div className="rounded-[2rem] bg-gradient-to-r from-green-400 via-teal-500 to-blue-500 p-8 shadow-lg transition-all hover:shadow-xl border-2 border-green-300 animate-scale-in">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div className="animate-slide-in-left">
-              <p className="text-sm uppercase tracking-[0.32em] text-green-100 font-semibold animate-fade-in">
-                ✨ New arrivals
-              </p>
-              <h2 className="mt-3 text-3xl font-semibold text-white sm:text-4xl animate-slide-in-right [animation-delay:200ms]">
-                Fresh picks just landed
+        <div className="rounded-[2rem] bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-600 p-8 md:p-12 shadow-xl border border-emerald-400/20 animate-scale-in">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div className="animate-slide-in-left space-y-4">
+              <span className="inline-block px-3 py-1 rounded-full bg-white/10 text-emerald-100 text-xs font-semibold tracking-widest uppercase">
+                ✨ NEW ARRIVAL SPOTLIGHT
+              </span>
+              <h2 className="text-3xl font-bold text-white sm:text-4xl">
+                Fresh Picks Just Landed
               </h2>
-              <p className="mt-4 max-w-xl text-sm leading-7 text-white/90 animate-fade-in [animation-delay:400ms]">
-                Discover the latest additions to our collection with exclusive
-                deals and limited-time offers.
+              <p className="max-w-md text-sm sm:text-base leading-relaxed text-emerald-50/90">
+                Explore our absolute latest addition: crafted to perfection, designed for daily excellence, and styled for standout presence. Order now with free standard shipping!
               </p>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-3 animate-slide-in-right [animation-delay:600ms]">
-              {newArrivals.slice(0, 3).map((product, index) => (
-                <div
-                  key={product._id}
-                  className="overflow-hidden rounded-lg bg-white/20 backdrop-blur-sm transition-all duration-500 hover:scale-110 border border-white/30 animate-bounce-in opacity-0"
-                  style={{ animationDelay: `${(index + 1) * 200}ms` }}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => navigateCategory("New Arrivals")}
+                  className="rounded-full bg-white text-teal-800 px-6 py-3 text-sm font-bold shadow-md transition-all hover:scale-105 hover:bg-emerald-50"
                 >
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="h-32 w-full object-cover transition duration-500 hover:scale-110 animate-shimmer"
-                  />
-                </div>
-              ))}
+                  View All New Drops
+                </button>
+              </div>
+            </div>
+            
+            <div className="relative flex justify-center items-center animate-slide-in-right [animation-delay:400ms]">
+              <div className="relative bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-4 w-full max-w-sm aspect-square flex items-center justify-center shadow-lg transition-transform hover:scale-105 duration-300">
+                <img
+                  src={newArrivals[0]?.image || "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=max&w=800"}
+                  alt={newArrivals[0]?.name || "New Arrival Spotlight"}
+                  className="max-h-full max-w-full object-contain rounded-2xl filter drop-shadow-md"
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -20,6 +20,32 @@ type ProductWithReviews = Product & {
   reviews?: Review[];
 };
 
+const StarRating = ({ rating }: { rating: number }) => {
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating % 1 >= 0.5;
+  const emptyStars = Math.max(0, 5 - fullStars - (hasHalfStar ? 1 : 0));
+
+  return (
+    <div className="flex items-center gap-0.5" aria-label={`Rated ${rating} out of 5`}>
+      {[...Array(fullStars)].map((_, i) => (
+        <svg key={`full-${i}`} className="h-4 w-4 fill-current text-yellow-500" viewBox="0 0 20 20">
+          <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+        </svg>
+      ))}
+      {hasHalfStar && (
+        <svg className="h-4 w-4 fill-current text-yellow-500" viewBox="0 0 20 20">
+          <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0v15z" />
+        </svg>
+      )}
+      {[...Array(emptyStars)].map((_, i) => (
+        <svg key={`empty-${i}`} className="h-4 w-4 fill-current text-slate-300 dark:text-slate-700" viewBox="0 0 20 20">
+          <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+        </svg>
+      ))}
+    </div>
+  );
+};
+
 export default function ProductPage() {
   const router = useRouter();
   const { id } = router.query;
@@ -29,8 +55,6 @@ export default function ProductPage() {
     "standard" | "express" | "overnight"
   >("standard");
   const [selectedSize, setSelectedSize] = useState<string>("");
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [autoPlayImage, setAutoPlayImage] = useState(true);
   const [product, setProduct] = useState<ProductWithReviews | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,6 +69,8 @@ export default function ProductPage() {
     "idle" | "submitting" | "success" | "error"
   >("idle");
   const [reviewError, setReviewError] = useState<string | null>(null);
+  const [hoverRating, setHoverRating] = useState<number | null>(null);
+  const [activeLightboxImage, setActiveLightboxImage] = useState<string | null>(null);
 
   const productId = Array.isArray(id) ? id[0] : id;
 
@@ -76,28 +102,7 @@ export default function ProductPage() {
       });
   }, [productId]);
 
-  useEffect(() => {
-    if (product?.images?.length) {
-      setSelectedImageIndex(0);
-    }
-  }, [product]);
 
-  // Auto-rotate images every 5 seconds
-  useEffect(() => {
-    if (!autoPlayImage || !product) return;
-
-    const images = (
-      product.images?.length ? product.images : [product.image]
-    ).filter((src) => src && src.trim() !== "");
-
-    if (images.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setSelectedImageIndex((prev) => (prev + 1) % images.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [autoPlayImage, product]);
 
   if (loading) {
     return (
@@ -143,6 +148,11 @@ export default function ProductPage() {
     });
   };
 
+  const removeReviewImage = (indexToRemove: number) => {
+    setReviewImages((prev) => prev.filter((_, i) => i !== indexToRemove));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== indexToRemove));
+  };
+
   const handleReviewSubmit = async (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
@@ -178,7 +188,20 @@ export default function ProductPage() {
       }
 
       const data = await response.json();
-      setReviews((prev) => [data.review, ...prev]);
+      const updatedReviews = data.reviews || [data.review, ...reviews];
+      setReviews(updatedReviews);
+
+      if (product) {
+        const totalRating = updatedReviews.reduce((sum: number, r: Review) => sum + r.rating, 0);
+        const avgRating = totalRating / updatedReviews.length;
+        setProduct({
+          ...product,
+          reviews: updatedReviews,
+          numReviews: updatedReviews.length,
+          rating: Number(avgRating.toFixed(1)),
+        });
+      }
+
       setReviewTitle("");
       setReviewComment("");
       setReviewImages([]);
@@ -206,11 +229,6 @@ export default function ProductPage() {
   };
 
   const totalPrice = product.price + (deliveryCosts[selectedDelivery] || 0);
-  const imageList = (
-    product.images?.length ? product.images : [product.image]
-  ).filter((src) => src && src.trim() !== "");
-  const selectedImage = imageList[selectedImageIndex] || product.image;
-  const hasMultipleImages = imageList.length > 1;
 
   return (
     <>
@@ -223,61 +241,13 @@ export default function ProductPage() {
         <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm animate-slideInLeft dark:border-slate-800 dark:bg-slate-950">
           {/* Main Image Display with Context */}
           <div className="relative">
-            <div className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-slate-900">
+            <div className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/50 p-6 aspect-square flex items-center justify-center">
               <img
-                src={selectedImage}
+                src={product.image}
                 alt={product.name}
-                className="w-full object-cover aspect-square"
+                className="max-h-full max-w-full object-contain filter drop-shadow-md transition-transform duration-500 hover:scale-105"
               />
-
-              {/* Auto-play toggle */}
-              {hasMultipleImages && (
-                <button
-                  onClick={() => setAutoPlayImage(!autoPlayImage)}
-                  className="absolute top-4 right-4 rounded-full bg-black/40 px-3 py-1 text-xs font-semibold text-white backdrop-blur hover:bg-black/60 transition"
-                >
-                  {autoPlayImage ? "⏸ Pause" : "▶ Play"}
-                </button>
-              )}
-
-              {/* Image Counter */}
-              {hasMultipleImages && (
-                <div className="absolute bottom-4 left-4 rounded-full bg-black/40 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
-                  {selectedImageIndex + 1} / {imageList.length}
-                </div>
-              )}
             </div>
-
-            {/* Navigation Arrows */}
-            {hasMultipleImages && (
-              <>
-                <button
-                  onClick={() => {
-                    setAutoPlayImage(false);
-                    setSelectedImageIndex(
-                      (prev) =>
-                        (prev - 1 + imageList.length) % imageList.length,
-                    );
-                  }}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 text-slate-900 transition hover:bg-white dark:bg-slate-800 dark:text-slate-100"
-                  aria-label="Previous image"
-                >
-                  ←
-                </button>
-                <button
-                  onClick={() => {
-                    setAutoPlayImage(false);
-                    setSelectedImageIndex(
-                      (prev) => (prev + 1) % imageList.length,
-                    );
-                  }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 text-slate-900 transition hover:bg-white dark:bg-slate-800 dark:text-slate-100"
-                  aria-label="Next image"
-                >
-                  →
-                </button>
-              </>
-            )}
           </div>
 
           {/* Image Context Info */}
@@ -293,35 +263,6 @@ export default function ProductPage() {
             </p>
           </div>
 
-          {/* Thumbnail Gallery - Scrollable for all images */}
-          {hasMultipleImages && (
-            <div className="mt-5 overflow-x-auto">
-              <div className="flex gap-3 pb-2">
-                {imageList.map((src, index) => (
-                  <button
-                    key={`${src}-${index}`}
-                    type="button"
-                    onClick={() => {
-                      setAutoPlayImage(false);
-                      setSelectedImageIndex(index);
-                    }}
-                    className={`flex-shrink-0 overflow-hidden rounded-3xl border-2 transition ${
-                      selectedImageIndex === index
-                        ? "border-brand-600 ring-2 ring-brand-300"
-                        : "border-slate-200 hover:border-brand-300 dark:border-slate-700"
-                    }`}
-                  >
-                    <img
-                      src={src}
-                      alt={`${product.name} ${index + 1}`}
-                      className="h-24 w-24 object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
           <div className="mt-8 space-y-6">
             <div className="flex flex-wrap items-center gap-4">
               <span className="rounded-full bg-brand-50 px-4 py-1.5 text-sm font-semibold text-brand-700">
@@ -332,9 +273,9 @@ export default function ProductPage() {
                   {product.gender}
                 </span>
               )}
-              <div className="flex items-center gap-2 text-sm text-slate-600">
-                <span className="text-yellow-500">★★★★★</span>
-                <span>
+              <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+                <StarRating rating={product.rating} />
+                <span className="font-semibold text-slate-700 dark:text-slate-300">
                   {product.rating} ({product.numReviews} reviews)
                 </span>
               </div>
@@ -650,22 +591,42 @@ export default function ProductPage() {
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="block">
+                  <div className="block">
                     <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                       Rating
                     </span>
-                    <select
-                      value={reviewRating}
-                      onChange={(e) => setReviewRating(Number(e.target.value))}
-                      className="mt-2 w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                    <div
+                      className="mt-2 flex items-center gap-1.5 py-2"
+                      onMouseLeave={() => setHoverRating(null)}
                     >
-                      {[5, 4, 3, 2, 1].map((value) => (
-                        <option key={value} value={value}>
-                          {value} star{value !== 1 ? "s" : ""}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                      {[1, 2, 3, 4, 5].map((value) => {
+                        const isSelected = value <= (hoverRating !== null ? hoverRating : reviewRating);
+                        return (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => setReviewRating(value)}
+                            onMouseEnter={() => setHoverRating(value)}
+                            className="text-2xl transition-all duration-150 hover:scale-125 focus:outline-none active:scale-95"
+                            aria-label={`Rate ${value} stars`}
+                          >
+                            <span
+                              className={
+                                isSelected
+                                  ? "text-yellow-500"
+                                  : "text-slate-300 dark:text-slate-700"
+                              }
+                            >
+                              ★
+                            </span>
+                          </button>
+                        );
+                      })}
+                      <span className="ml-3 text-sm font-semibold text-slate-600 dark:text-slate-400">
+                        ({reviewRating} star{reviewRating !== 1 ? "s" : ""})
+                      </span>
+                    </div>
+                  </div>
 
                   <label className="block">
                     <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
@@ -708,17 +669,25 @@ export default function ProductPage() {
                 </label>
 
                 {imagePreviews.length > 0 && (
-                  <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="grid gap-3 sm:grid-cols-3 animate-fade-in">
                     {imagePreviews.map((src, index) => (
                       <div
                         key={index}
-                        className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-900"
+                        className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-900 shadow-sm transition-transform hover:scale-[1.02]"
                       >
                         <img
                           src={src}
                           alt={`Review image ${index + 1}`}
-                          className="h-28 w-full object-cover"
+                          className="h-28 w-full object-cover rounded-[1.25rem]"
                         />
+                        <button
+                          type="button"
+                          onClick={() => removeReviewImage(index)}
+                          className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-rose-500 text-sm font-bold text-white shadow hover:bg-rose-600 transition active:scale-90"
+                          aria-label="Remove image"
+                        >
+                          ×
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -749,22 +718,22 @@ export default function ProductPage() {
 
             <div className="space-y-6">
               <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-900">
-                <p className="text-sm uppercase tracking-[0.32em] text-brand-700 dark:text-brand-300">
+                <p className="text-sm uppercase tracking-[0.32em] text-brand-700 dark:text-brand-300 font-semibold">
                   {reviews.length} review{reviews.length !== 1 ? "s" : ""}
                 </p>
-                <div className="mt-4 flex items-center gap-3">
-                  <div className="rounded-3xl bg-brand-600 px-4 py-3 text-white">
-                    <span className="text-3xl font-bold">
+                <div className="mt-4 flex items-center gap-4">
+                  <div className="rounded-3xl bg-brand-600 px-4 py-3 text-white shadow-md shadow-brand-500/20">
+                    <span className="text-3xl font-extrabold">
                       {product.rating?.toFixed(1) ?? "5.0"}
                     </span>
                   </div>
-                  <div>
+                  <div className="space-y-1">
                     <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                      Average score
+                      Average Score
                     </p>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                      Based on customer feedback and image reviews.
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <StarRating rating={product.rating || 5} />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -780,18 +749,26 @@ export default function ProductPage() {
                       key={`${review.name}-${review.createdAt}`}
                       className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950"
                     >
-                      <div className="flex flex-wrap items-center justify-between gap-4">
-                        <div>
-                          <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                            {review.title || "Customer review"}
-                          </p>
-                          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                            {review.name} •{" "}
-                            {new Date(review.createdAt).toLocaleDateString()}
-                          </p>
+                      <div className="flex flex-wrap items-start justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-indigo-600 text-sm font-bold text-white uppercase shadow-sm">
+                            {review.name ? review.name[0] : "C"}
+                          </div>
+                          <div>
+                            <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                              {review.title || "Customer review"}
+                            </p>
+                            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                              <span className="font-medium text-slate-700 dark:text-slate-300">{review.name}</span> •{" "}
+                              {new Date(review.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
                         </div>
-                        <div className="rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700">
-                          {review.rating} / 5
+                        <div className="flex flex-col items-end gap-1">
+                          <StarRating rating={review.rating} />
+                          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                            {review.rating} / 5
+                          </span>
                         </div>
                       </div>
                       <p className="mt-4 text-slate-700 dark:text-slate-300">
@@ -800,12 +777,22 @@ export default function ProductPage() {
                       {review.images && review.images.length > 0 && (
                         <div className="mt-4 grid gap-3 sm:grid-cols-2">
                           {review.images.map((src, index) => (
-                            <img
+                            <div
                               key={index}
-                              src={src}
-                              alt={`Review image ${index + 1}`}
-                              className="h-36 w-full rounded-3xl object-cover"
-                            />
+                              onClick={() => setActiveLightboxImage(src)}
+                              className="group relative cursor-zoom-in overflow-hidden rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm transition hover:shadow-md"
+                            >
+                              <img
+                                src={src}
+                                alt={`Review image ${index + 1}`}
+                                className="h-36 w-full object-cover transition duration-300 group-hover:scale-105"
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition duration-200 group-hover:opacity-100">
+                                <span className="rounded-full bg-black/60 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-sm">
+                                  🔍 Click to expand
+                                </span>
+                              </div>
+                            </div>
                           ))}
                         </div>
                       )}
@@ -817,6 +804,27 @@ export default function ProductPage() {
           </div>
         </section>
       </div>
+
+      {activeLightboxImage && (
+        <div
+          onClick={() => setActiveLightboxImage(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm transition-opacity duration-300 animate-fade-in"
+        >
+          <button
+            onClick={() => setActiveLightboxImage(null)}
+            className="absolute top-6 right-6 text-white text-3xl font-light hover:text-slate-300 focus:outline-none"
+          >
+            ×
+          </button>
+          <div className="relative max-h-[85vh] max-w-[85vw] overflow-hidden rounded-[2rem] bg-white p-2 shadow-2xl dark:bg-slate-900">
+            <img
+              src={activeLightboxImage}
+              alt="Review enlargement"
+              className="max-h-[80vh] max-w-[80vw] object-contain rounded-2xl"
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }

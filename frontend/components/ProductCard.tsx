@@ -65,11 +65,10 @@ const AddToCartButton = ({ onClick, isAdding, outOfStock }) => {
       type="button"
       onClick={onClick}
       disabled={isAdding}
-      className={`rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 active:scale-95 ${
-        isAdding
+      className={`rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 active:scale-95 ${isAdding
           ? "cursor-wait bg-brand-400"
           : "bg-brand-600 hover:bg-brand-700 hover:shadow-md"
-      }`}
+        }`}
     >
       {isAdding ? (
         <div className="flex items-center justify-center gap-2">
@@ -112,9 +111,9 @@ const ProductCard = ({ product, onAddToCart }) => {
   const discountPercent =
     product.originalPrice && product.originalPrice > product.price
       ? Math.round(
-          ((product.originalPrice - product.price) / product.originalPrice) *
-            100,
-        )
+        ((product.originalPrice - product.price) / product.originalPrice) *
+        100,
+      )
       : 0;
 
   const handleAddToCart = async () => {
@@ -136,11 +135,10 @@ const ProductCard = ({ product, onAddToCart }) => {
     <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl dark:border-slate-800 dark:bg-slate-950">
       {/* Added to cart toast feedback */}
       <div
-        className={`absolute left-1/2 top-4 z-20 -translate-x-1/2 transform rounded-full bg-emerald-500 px-3 py-1 text-xs font-medium text-white shadow-lg transition-all duration-300 ${
-          showAddedFeedback
+        className={`absolute left-1/2 top-4 z-20 -translate-x-1/2 transform rounded-full bg-emerald-500 px-3 py-1 text-xs font-medium text-white shadow-lg transition-all duration-300 ${showAddedFeedback
             ? "translate-y-0 opacity-100"
             : "-translate-y-8 pointer-events-none opacity-0"
-        }`}
+          }`}
       >
         ✓ Added to cart!
       </div>
