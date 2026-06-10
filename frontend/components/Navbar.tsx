@@ -142,16 +142,32 @@ export default function Navbar({ itemCount }: { itemCount: number }) {
 
   return (
     <>
+      {/* Sleek Wix-style Top Utility Bar */}
+      <div className="bg-black text-white text-[11px] font-semibold py-2 px-4 hidden md:block">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <span className="inline-block bg-white/20 px-1.5 py-0.5 rounded-[3px] text-[9px] uppercase font-bold tracking-wider">Offer</span>
+            <span>Free Shipping for orders over $50</span>
+          </div>
+          <div className="flex items-center gap-5 text-white/80">
+            <Link href="/about" className="hover:text-white transition">About</Link>
+            <Link href="/contact" className="hover:text-white transition">Contact</Link>
+            <Link href="/help" className="hover:text-white transition">Help Center</Link>
+            <span>Call Us: 123-456-7890</span>
+          </div>
+        </div>
+      </div>
+
       <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur-md transition-colors duration-300 dark:border-slate-800 dark:bg-slate-950/95">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo + Desktop Nav */}
           <div className="flex items-center gap-8">
             <Link
               href="/"
-              className="text-2xl font-black tracking-tighter text-slate-900 transition hover:opacity-80 dark:text-white"
+              className="text-2xl font-extrabold uppercase tracking-widest text-slate-900 transition hover:opacity-80 dark:text-white"
+              style={{ fontFamily: "'Outfit', sans-serif" }}
             >
-              Wonder
-              <span className="text-brand-600 dark:text-brand-400">Cart</span>
+              TechShed
             </Link>
 
             <nav className="hidden gap-6 md:flex">
@@ -311,6 +327,21 @@ export default function Navbar({ itemCount }: { itemCount: number }) {
             </button>
           </div>
         </div>
+
+        {/* Sub Navigation Categories Row */}
+        <div className="border-t border-slate-200/50 dark:border-slate-800/80 py-3.5 hidden md:block">
+          <div className="mx-auto flex max-w-7xl items-center gap-6 px-8 text-[11px] uppercase tracking-wider font-extrabold text-slate-600 dark:text-slate-300">
+            <Link href="/#shop" className="hover:text-brand-600 dark:hover:text-brand-400 transition">Shop All</Link>
+            <Link href="/category/Electronics" className="hover:text-brand-600 dark:hover:text-brand-400 transition">Computers</Link>
+            <Link href="/category/Electronics" className="hover:text-brand-600 dark:hover:text-brand-400 transition">Tablets</Link>
+            <Link href="/category/Electronics" className="hover:text-brand-600 dark:hover:text-brand-400 transition">Drones & Cameras</Link>
+            <Link href="/category/Electronics" className="hover:text-brand-600 dark:hover:text-brand-400 transition">Audio</Link>
+            <Link href="/category/Electronics" className="hover:text-brand-600 dark:hover:text-brand-400 transition">Mobile</Link>
+            <Link href="/category/Electronics" className="hover:text-brand-600 dark:hover:text-brand-400 transition">TV & Home Cinema</Link>
+            <Link href="/category/Electronics" className="hover:text-brand-600 dark:hover:text-brand-400 transition">Wearable Tech</Link>
+            <Link href="/category/Sale" className="hover:text-rose-600 dark:hover:text-rose-400 transition text-rose-500 font-black">Sale</Link>
+          </div>
+        </div>
       </header>
 
       {/* Mobile Menu Overlay */}
@@ -330,8 +361,8 @@ export default function Navbar({ itemCount }: { itemCount: number }) {
             }`}
         >
           <div className="flex items-center justify-between border-b border-slate-200 p-4 dark:border-slate-800">
-            <span className="text-xl font-black text-slate-900 dark:text-white">
-              Wonder<span className="text-brand-600">Cart</span>
+            <span className="text-xl font-extrabold uppercase tracking-widest text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              TechShed
             </span>
             <button
               onClick={() => setIsMobileMenuOpen(false)}
@@ -393,11 +424,35 @@ export default function Navbar({ itemCount }: { itemCount: number }) {
                 </span>
               )}
             </Link>
-            {!user && (
+            {user ? (
+              <>
+                <Link
+                  href="/profile"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="mb-1 flex items-center rounded-xl px-3 py-3 text-base font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/settings"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="mb-1 flex items-center rounded-xl px-3 py-3 text-base font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                >
+                  Settings
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full text-left mb-1 flex items-center rounded-xl px-3 py-3 text-base font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
               <Link
                 href="/login"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="mt-2 rounded-full bg-brand-600 px-4 py-3 text-center text-sm font-bold text-white transition-colors hover:bg-brand-700"
+                className="mt-2 block rounded-full bg-brand-600 px-4 py-3 text-center text-sm font-bold text-white transition-colors hover:bg-brand-700"
               >
                 Sign In
               </Link>

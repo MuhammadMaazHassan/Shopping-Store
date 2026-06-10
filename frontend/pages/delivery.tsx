@@ -5,7 +5,7 @@ export default function DeliveryPage() {
   return (
     <>
       <Head>
-        <title>Delivery & Shipping | WonderCart</title>
+        <title>Delivery & Shipping | TechShed</title>
       </Head>
 
       <div className="mx-auto max-w-4xl space-y-8 bg-white">

@@ -4,6 +4,27 @@ import { useContext, useState } from "react";
 import { CartContext } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 import { AlertCircle } from "lucide-react";
+import ProductImageFallback from "../components/ProductImageFallback";
+
+const CartItemImage = ({ item }: { item: any }) => {
+  const [imageError, setImageError] = useState(false);
+  return !imageError && item.image ? (
+    <img
+      src={item.image}
+      alt={item.name}
+      className="h-28 w-28 rounded-2xl object-contain bg-white border border-slate-100 p-2 shadow-sm"
+      onError={() => setImageError(true)}
+    />
+  ) : (
+    <div className="h-28 w-28 rounded-2xl overflow-hidden shadow-sm">
+      <ProductImageFallback
+        category={item.category}
+        name={item.name}
+        className="h-full w-full"
+      />
+    </div>
+  );
+};
 
 export default function CartPage() {
   const cartContext = useContext(CartContext);
@@ -130,7 +151,7 @@ export default function CartPage() {
   return (
     <>
       <Head>
-        <title>Your Cart & Checkout | WonderCart</title>
+        <title>Your Cart & Checkout | TechShed</title>
       </Head>
 
       <div className="mx-auto max-w-7xl space-y-8 animate-fadeInUp px-4 sm:px-6 lg:px-8">
@@ -190,11 +211,7 @@ export default function CartPage() {
                       key={item._id}
                       className="rounded-[1.5rem] border border-slate-100 bg-slate-50 p-4 flex flex-col sm:flex-row items-center gap-6 relative"
                     >
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="h-28 w-28 rounded-2xl object-cover shadow-sm"
-                      />
+                      <CartItemImage item={item} />
                       <div className="flex-1 w-full text-center sm:text-left">
                         <h3 className="text-lg font-bold text-slate-900">
                           {item.name}

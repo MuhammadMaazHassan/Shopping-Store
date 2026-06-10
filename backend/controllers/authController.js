@@ -35,6 +35,8 @@ const registerUser = async (req, res) => {
       phone: user.phone,
       address: user.address,
       areaCode: user.areaCode,
+      notificationSettings: user.notificationSettings,
+      preferences: user.preferences,
       createdAt: user.createdAt,
       token: generateToken(user._id),
     });
@@ -57,6 +59,8 @@ const loginUser = async (req, res) => {
         phone: user.phone,
         address: user.address,
         areaCode: user.areaCode,
+        notificationSettings: user.notificationSettings,
+        preferences: user.preferences,
         createdAt: user.createdAt,
         token: generateToken(user._id),
       });

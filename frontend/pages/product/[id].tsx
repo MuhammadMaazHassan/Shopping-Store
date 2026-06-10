@@ -5,6 +5,7 @@ import { useContext, useEffect, useState } from "react";
 import { type Product } from "../../data/products";
 import { CartContext } from "../../contexts/CartContext";
 import { useAuth } from "../../contexts/AuthContext";
+import ProductImageFallback from "../../components/ProductImageFallback";
 
 type Review = {
   name: string;
@@ -71,6 +72,10 @@ export default function ProductPage() {
   const [reviewError, setReviewError] = useState<string | null>(null);
   const [hoverRating, setHoverRating] = useState<number | null>(null);
   const [activeLightboxImage, setActiveLightboxImage] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"overview" | "specs" | "shipping">("overview");
+  const [showCartToast, setShowCartToast] = useState(false);
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const productId = Array.isArray(id) ? id[0] : id;
 
@@ -85,6 +90,7 @@ export default function ProductPage() {
     if (!productId) return;
 
     setLoading(true);
+    setImageError(false);
     fetch(`/api/products/${productId}`)
       .then((res) => {
         if (!res.ok) throw new Error("Product not found");
@@ -218,6 +224,15 @@ export default function ProductPage() {
     }
   };
 
+  const handleAddToCart = () => {
+    if (!product) return;
+    cartContext?.addToCart(product);
+    setShowCartToast(true);
+    setTimeout(() => {
+      setShowCartToast(false);
+    }, 4000);
+  };
+
   const deliveryCosts: {
     standard: number;
     express: number;
@@ -233,7 +248,7 @@ export default function ProductPage() {
   return (
     <>
       <Head>
-        <title>{product.name} | WonderCart</title>
+        <title>{product.name} | TechShed</title>
         <meta name="description" content={product.description} />
       </Head>
 
@@ -241,110 +256,216 @@ export default function ProductPage() {
         <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm animate-slideInLeft dark:border-slate-800 dark:bg-slate-950">
           {/* Main Image Display with Context */}
           <div className="relative">
-            <div className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/50 p-6 aspect-square flex items-center justify-center">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="max-h-full max-w-full object-contain filter drop-shadow-md transition-transform duration-500 hover:scale-105"
-              />
-            </div>
-          </div>
+            <div className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/50 p-6 aspect-square flex items-center justify-center relative">
+              {!imageError && product.image ? (
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="max-h-full max-w-full object-contain filter drop-shadow-md transition-transform duration-500 hover:scale-105"
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <ProductImageFallback
+                  category={product.category}
+                  name={product.name}
+                  className="h-full w-full"
+                />
+              )}
 
-          {/* Image Context Info */}
-          <div className="mt-4 rounded-3xl bg-brand-50 p-4 dark:bg-brand-950/30">
-            <p className="text-sm font-semibold text-brand-700 dark:text-brand-300">
-              {product.category}
-            </p>
-            <p className="mt-1 text-base font-bold text-slate-900 dark:text-slate-100">
-              {product.name}
-            </p>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              {product.brand} • {product.gender || "Unisex"}
-            </p>
+              {/* Status Badges Overlay */}
+              <div className="absolute top-4 left-4 flex flex-col gap-2">
+                {product.sale && (
+                  <span className="rounded-full bg-rose-600 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-rose-500/20">
+                    🔥 Sale
+                  </span>
+                )}
+                {product.newArrival && (
+                  <span className="rounded-full bg-indigo-600 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-indigo-500/20">
+                    ✨ New
+                  </span>
+                )}
+                {product.featured && (
+                  <span className="rounded-full bg-amber-500 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-amber-500/20">
+                    ⭐ Featured
+                  </span>
+                )}
+              </div>
+
+              {/* Stock Status Badge */}
+              <div className="absolute top-4 right-4">
+                {product.countInStock === 0 ? (
+                  <span className="rounded-full bg-rose-100 px-3.5 py-1.5 text-xs font-semibold text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">
+                    ✕ Out of Stock
+                  </span>
+                ) : product.countInStock <= 5 ? (
+                  <span className="rounded-full bg-amber-100 px-3.5 py-1.5 text-xs font-semibold text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
+                    ⚠️ Only {product.countInStock} Left!
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-emerald-100 px-3.5 py-1.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                    ✓ In Stock
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="mt-8 space-y-6">
-            <div className="flex flex-wrap items-center gap-4">
-              <span className="rounded-full bg-brand-50 px-4 py-1.5 text-sm font-semibold text-brand-700">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
+                {product.brand}
+              </span>
+              <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400">
                 {product.category}
               </span>
               {product.gender && (
-                <span className="rounded-full bg-slate-100 px-4 py-1.5 text-sm font-semibold text-slate-700">
+                <span className="rounded-full bg-brand-50 dark:bg-brand-950/30 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400">
                   {product.gender}
                 </span>
               )}
-              <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+            </div>
+
+            <div>
+              <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-5xl">
+                {product.name}
+              </h1>
+              <div className="mt-4 flex items-center gap-3">
                 <StarRating rating={product.rating} />
-                <span className="font-semibold text-slate-700 dark:text-slate-300">
-                  {product.rating} ({product.numReviews} reviews)
+                <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  {product.rating.toFixed(1)} / 5.0
+                </span>
+                <span className="text-slate-300 dark:text-slate-700">•</span>
+                <span className="text-sm text-slate-500 dark:text-slate-400">
+                  {product.numReviews} Reviews
                 </span>
               </div>
             </div>
-            <div>
-              <h1 className="text-4xl font-semibold text-slate-900">
-                {product.name}
-              </h1>
-              <p className="mt-2 text-sm text-slate-500">By {product.brand}</p>
-            </div>
-            <p className="text-lg leading-8 text-slate-600">
-              {product.description}
-            </p>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {product.availableSizes && (
-                <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
-                  <p className="text-sm font-semibold uppercase tracking-[0.32em] text-slate-700">
-                    Size
+
+            {/* Size Selector with Guide Option */}
+            {product.availableSizes && product.availableSizes.length > 0 && (
+              <div className="rounded-[1.75rem] border border-slate-200/60 bg-slate-50/50 p-6 dark:border-slate-800 dark:bg-slate-900/30">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300">
+                    Select Size
                   </p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {product.availableSizes.map((size) => (
-                      <button
-                        key={size}
-                        type="button"
-                        onClick={() => setSelectedSize(size)}
-                        className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                          selectedSize === size
-                            ? "border-brand-600 bg-brand-600 text-white"
-                            : "border-slate-200 bg-white text-slate-700 hover:border-brand-300"
-                        }`}
-                      >
-                        {size}
-                      </button>
-                    ))}
+                  <button
+                    type="button"
+                    onClick={() => setShowSizeGuide(true)}
+                    className="text-xs font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400 hover:underline hover:text-brand-700"
+                  >
+                    📏 Size Guide
+                  </button>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2.5">
+                  {product.availableSizes.map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => setSelectedSize(size)}
+                      className={`flex h-12 min-w-12 items-center justify-center rounded-full border px-4 text-sm font-bold transition-all duration-150 ${
+                        selectedSize === size
+                          ? "border-brand-600 bg-brand-600 text-white shadow-md shadow-brand-500/20 scale-105"
+                          : "border-slate-200 bg-white text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 hover:border-brand-300 hover:scale-[1.02]"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Dynamic Segmented Tab Navigation System */}
+            <div className="mt-8 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex gap-8">
+                {[
+                  { id: "overview", label: "Description" },
+                  { id: "specs", label: "Specifications" },
+                  { id: "shipping", label: "Shipping" },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`pb-4 text-sm font-bold uppercase tracking-wider transition relative ${
+                      activeTab === tab.id
+                        ? "text-brand-600 dark:text-brand-400"
+                        : "text-slate-400 hover:text-slate-600"
+                    }`}
+                  >
+                    {tab.label}
+                    {activeTab === tab.id && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-brand-600 dark:bg-brand-400" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Segmented Content Area */}
+            <div className="py-4">
+              {activeTab === "overview" && (
+                <div className="space-y-4">
+                  <p className="text-base leading-8 text-slate-600 dark:text-slate-300">
+                    {product.description}
+                  </p>
+                  <div className="rounded-2xl bg-indigo-50/50 p-5 dark:bg-indigo-950/10 border border-indigo-100/50 dark:border-indigo-900/30">
+                    <p className="text-sm font-semibold text-indigo-900 dark:text-indigo-300">
+                      💡 Premium Brand Heritage
+                    </p>
+                    <p className="mt-1.5 text-xs text-indigo-700 dark:text-indigo-400/90 leading-5">
+                      This item is a 100% authentic release from <strong>{product.brand}</strong>, designed with top-tier materials and visual craft standards.
+                    </p>
                   </div>
                 </div>
               )}
 
-              <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
-                <p className="text-sm font-semibold uppercase tracking-[0.32em] text-slate-700">
-                  Details
-                </p>
-                <div className="mt-4 space-y-3 text-sm text-slate-600">
-                  {product.details?.material && (
-                    <p>
-                      <span className="font-semibold text-slate-900">
-                        Material:
-                      </span>{" "}
-                      {product.details.material}
-                    </p>
-                  )}
-                  {product.details?.color && (
-                    <p>
-                      <span className="font-semibold text-slate-900">
-                        Color:
-                      </span>{" "}
-                      {product.details.color}
-                    </p>
-                  )}
-                  {product.details?.style && (
-                    <p>
-                      <span className="font-semibold text-slate-900">
-                        Style:
-                      </span>{" "}
-                      {product.details.style}
-                    </p>
-                  )}
+              {activeTab === "specs" && (
+                <div className="rounded-3xl border border-slate-200/60 bg-slate-50/50 p-6 dark:border-slate-800 dark:bg-slate-900/30 space-y-4">
+                  <p className="text-sm font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200">
+                    Product Details & Specifications
+                  </p>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="flex justify-between border-b border-slate-200/60 dark:border-slate-800 pb-2.5">
+                      <span className="text-sm text-slate-500">Material</span>
+                      <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{product.details?.material || "Premium Composition"}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-slate-200/60 dark:border-slate-800 pb-2.5">
+                      <span className="text-sm text-slate-500">Colorway</span>
+                      <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{product.details?.color || "Custom Palette"}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-slate-200/60 dark:border-slate-800 pb-2.5">
+                      <span className="text-sm text-slate-500">Model Style</span>
+                      <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{product.details?.style || "Contemporary"}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-slate-200/60 dark:border-slate-800 pb-2.5">
+                      <span className="text-sm text-slate-500">Product Weight</span>
+                      <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{product.details?.weight || "Lightweight Release"}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-slate-200/60 dark:border-slate-800 pb-2.5">
+                      <span className="text-sm text-slate-500">Gender Selection</span>
+                      <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{product.gender || "Unisex Release"}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-slate-200/60 dark:border-slate-800 pb-2.5">
+                      <span className="text-sm text-slate-500">Category Tag</span>
+                      <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{product.category}</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {activeTab === "shipping" && (
+                <div className="rounded-3xl border border-slate-200/60 bg-slate-50/50 p-6 dark:border-slate-800 dark:bg-slate-900/30 space-y-4">
+                  <p className="text-sm font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200">
+                    Logistic & Care Details
+                  </p>
+                  <div className="space-y-3.5 text-sm text-slate-600 dark:text-slate-300 leading-6">
+                    <p>📦 <strong>Fast Tracking Logistics</strong>: All items are packaged carefully in protective, double-walled boxes and dispatched within 24 hours.</p>
+                    <p>🛡️ <strong>Secure Shipment Insured</strong>: Every package includes real-time tracking numbers and visual delivery confirmation.</p>
+                    <p>🔄 <strong>Hassle-Free Returns</strong>: Fit not perfect? Enjoy worry-free 30-day returns and fast refunds.</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -436,7 +557,7 @@ export default function ProductPage() {
 
           <button
             type="button"
-            onClick={() => cartContext?.addToCart(product)}
+            onClick={handleAddToCart}
             className="w-full rounded-full bg-brand-600 px-6 py-4 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition hover:bg-brand-700"
           >
             Add to cart
@@ -451,100 +572,6 @@ export default function ProductPage() {
       </div>
 
       <div className="mx-auto mt-10 max-w-7xl space-y-10">
-        <section className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-          <div className="grid gap-10 xl:grid-cols-[1fr_0.9fr]">
-            <div>
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-                Product details
-              </h2>
-              <p className="mt-4 text-slate-600 dark:text-slate-400">
-                Dive into every section for a complete product story — material,
-                color, style, weight, and delivery details are all here to help
-                you choose with confidence.
-              </p>
-              <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900">
-                  <p className="text-sm uppercase tracking-[0.32em] text-slate-500 dark:text-slate-400">
-                    Category
-                  </p>
-                  <p className="mt-3 text-base font-semibold text-slate-900 dark:text-slate-100">
-                    {product.category}
-                  </p>
-                </div>
-                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900">
-                  <p className="text-sm uppercase tracking-[0.32em] text-slate-500 dark:text-slate-400">
-                    Brand
-                  </p>
-                  <p className="mt-3 text-base font-semibold text-slate-900 dark:text-slate-100">
-                    {product.brand}
-                  </p>
-                </div>
-                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900">
-                  <p className="text-sm uppercase tracking-[0.32em] text-slate-500 dark:text-slate-400">
-                    Sizes
-                  </p>
-                  <p className="mt-3 text-base font-semibold text-slate-900 dark:text-slate-100">
-                    {product.availableSizes?.join(" • ") ?? "One size"}
-                  </p>
-                </div>
-                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900">
-                  <p className="text-sm uppercase tracking-[0.32em] text-slate-500 dark:text-slate-400">
-                    Delivery
-                  </p>
-                  <p className="mt-3 text-base font-semibold text-slate-900 dark:text-slate-100">
-                    Standard {product.delivery?.standard ?? "-"}d, Express{" "}
-                    {product.delivery?.express ?? "-"}d, Overnight{" "}
-                    {product.delivery?.overnight ?? "-"}d
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-900">
-              <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
-                Description overview
-              </h3>
-              <p className="mt-4 text-slate-600 dark:text-slate-400">
-                {product.description}
-              </p>
-              <div className="mt-6 space-y-3 text-sm text-slate-700 dark:text-slate-300">
-                {product.details?.material && (
-                  <p>
-                    <span className="font-semibold text-slate-900 dark:text-slate-100">
-                      Material:
-                    </span>{" "}
-                    {product.details.material}
-                  </p>
-                )}
-                {product.details?.color && (
-                  <p>
-                    <span className="font-semibold text-slate-900 dark:text-slate-100">
-                      Color:
-                    </span>{" "}
-                    {product.details.color}
-                  </p>
-                )}
-                {product.details?.weight && (
-                  <p>
-                    <span className="font-semibold text-slate-900 dark:text-slate-100">
-                      Weight:
-                    </span>{" "}
-                    {product.details.weight}
-                  </p>
-                )}
-                {product.details?.style && (
-                  <p>
-                    <span className="font-semibold text-slate-900 dark:text-slate-100">
-                      Style:
-                    </span>{" "}
-                    {product.details.style}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
-
         <section className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-950">
           <div className="grid gap-10 xl:grid-cols-[1fr_1.25fr]">
             <div className="space-y-6">
@@ -822,6 +849,84 @@ export default function ProductPage() {
               alt="Review enlargement"
               className="max-h-[80vh] max-w-[80vw] object-contain rounded-2xl"
             />
+          </div>
+        </div>
+      )}
+
+      {showCartToast && (
+        <div className="fixed top-6 right-6 z-50 flex max-w-md items-center gap-4 rounded-3xl border border-emerald-200 bg-white p-4 shadow-2xl dark:border-emerald-900 dark:bg-slate-900 animate-slideInRight">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xl text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 font-bold">
+            ✓
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-slate-900 dark:text-white">Added to Cart!</p>
+            <p className="truncate text-xs text-slate-500 dark:text-slate-400">{product.name}</p>
+          </div>
+          <Link
+            href="/cart"
+            className="rounded-full bg-brand-600 px-4 py-2 text-xs font-bold text-white hover:bg-brand-700 transition shrink-0"
+          >
+            Checkout
+          </Link>
+        </div>
+      )}
+
+      {showSizeGuide && (
+        <div
+          onClick={() => setShowSizeGuide(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm transition-opacity duration-300 animate-fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-lg overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-8 shadow-2xl dark:border-slate-800 dark:bg-slate-950 animate-scale-in"
+          >
+            <button
+              onClick={() => setShowSizeGuide(false)}
+              className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 text-2xl focus:outline-none"
+            >
+              ×
+            </button>
+            <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">
+              📏 Size Chart Guide
+            </h3>
+            <p className="mt-2 text-sm text-slate-500">
+              Standard brand shoe dimension chart for men and women.
+            </p>
+            <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800">
+              <table className="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+                <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-700 dark:bg-slate-900 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                  <tr>
+                    <th className="px-6 py-3.5">US Size</th>
+                    <th className="px-6 py-3.5">UK Size</th>
+                    <th className="px-6 py-3.5">EU Size</th>
+                    <th className="px-6 py-3.5">Length</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                  {[
+                    { us: "7.0", uk: "6.0", eu: "40.0", cm: "25.0 cm" },
+                    { us: "8.0", uk: "7.0", eu: "41.0", cm: "26.0 cm" },
+                    { us: "9.0", uk: "8.0", eu: "42.0", cm: "27.0 cm" },
+                    { us: "10.0", uk: "9.0", eu: "43.0", cm: "28.0 cm" },
+                    { us: "11.0", uk: "10.0", eu: "44.0", cm: "29.0 cm" },
+                    { us: "12.0", uk: "11.0", eu: "45.0", cm: "30.0 cm" },
+                  ].map((row) => (
+                    <tr key={row.us} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/20">
+                      <td className="px-6 py-3 font-bold text-slate-900 dark:text-white">{row.us}</td>
+                      <td className="px-6 py-3">{row.uk}</td>
+                      <td className="px-6 py-3">{row.eu}</td>
+                      <td className="px-6 py-3">{row.cm}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <button
+              onClick={() => setShowSizeGuide(false)}
+              className="mt-6 w-full rounded-full bg-slate-100 py-3 text-sm font-bold text-slate-800 hover:bg-slate-200 transition"
+            >
+              Close Guide
+            </button>
           </div>
         </div>
       )}

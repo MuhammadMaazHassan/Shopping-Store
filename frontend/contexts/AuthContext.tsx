@@ -17,6 +17,8 @@ interface User {
   areaCode?: string;
   createdAt?: string | Date;
   token?: string;
+  notificationSettings?: any;
+  preferences?: any;
 }
 
 interface AuthContextType {

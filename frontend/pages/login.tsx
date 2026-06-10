@@ -122,10 +122,10 @@ export default function LoginPage() {
   return (
     <>
       <Head>
-        <title>{isReturning ? "Sign In" : "Sign Up"} | WonderCart</title>
+        <title>{isReturning ? "Sign In" : "Sign Up"} | TechShed</title>
         <meta
           name="description"
-          content="Sign in to your WonderCart account or create a new one to enjoy personalized shopping, order tracking, and fast checkout."
+          content="Sign in to your TechShed account or create a new one to enjoy personalized shopping, order tracking, and fast checkout."
         />
       </Head>
 
@@ -173,9 +173,10 @@ export default function LoginPage() {
                 <div className="mb-6 text-center">
                   <Link
                     href="/"
-                    className="inline-block text-2xl font-bold text-accent mb-2"
+                    className="inline-block text-2xl font-extrabold uppercase tracking-widest text-slate-900 mb-2 dark:text-white"
+                    style={{ fontFamily: "'Outfit', sans-serif" }}
                   >
-                    WonderCart
+                    TechShed
                   </Link>
                   <h1 className="text-2xl sm:text-3xl font-bold text-text mt-2">
                     {isReturning ? "Welcome back" : "Create account"}

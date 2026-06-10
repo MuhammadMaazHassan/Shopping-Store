@@ -191,7 +191,7 @@ export default function NotificationsPage() {
   return (
     <>
       <Head>
-        <title>Notifications | WonderCart</title>
+        <title>Notifications | TechShed</title>
         <meta
           name="description"
           content="Stay updated with your order status, promotions, and account notifications."

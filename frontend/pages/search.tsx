@@ -169,7 +169,7 @@ export default function SearchPage() {
   return (
     <>
       <Head>
-        <title>Search | WonderCart</title>
+        <title>Search | TechShed</title>
         <meta
           name="description"
           content="Search the store for products, brands, categories, and featured collections."

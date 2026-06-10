@@ -7,7 +7,15 @@ const UserSchema = new mongoose.Schema({
   phone: { type: String },
   address: { type: String },
   areaCode: { type: String },
-  isAdmin: { type: Boolean, default: false }
+  isAdmin: { type: Boolean, default: false },
+  notificationSettings: {
+    type: Object,
+    default: { orderUpdates: true, promotions: false, security: true, digest: false }
+  },
+  preferences: {
+    type: Object,
+    default: { currency: "USD", language: "English", darkMode: false }
+  }
 }, { timestamps: true });
 UserSchema.pre('save', async function() {
   if (!this.isModified('password')) return;

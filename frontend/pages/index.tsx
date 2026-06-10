@@ -12,6 +12,25 @@ import { useRouter } from "next/router";
 import { type Product } from "../data/products";
 import { CartContext } from "../contexts/CartContext";
 import ProductCard from "../components/ProductCard";
+import ProductImageFallback from "../components/ProductImageFallback";
+
+const SafeSpotlightImage = ({ product }: { product: Product }) => {
+  const [imageError, setImageError] = useState(false);
+  return !imageError && product.image ? (
+    <img
+      src={product.image}
+      alt={product.name}
+      className="max-h-full max-w-full object-contain transition duration-500 group-hover:scale-105"
+      onError={() => setImageError(true)}
+    />
+  ) : (
+    <ProductImageFallback
+      category={product.category}
+      name={product.name}
+      className="h-full w-full"
+    />
+  );
+};
 
 const categoryOptions = [
   "All",
@@ -30,50 +49,50 @@ const categoryOptions = [
 
 const heroHighlights = [
   {
-    title: "Global shipping",
-    subtitle: "Fast, reliable delivery to customers around the world.",
-    icon: "🌍",
+    title: "Free Shipping",
+    subtitle: "On all shopping orders over $50 worldwide.",
+    icon: "🚚",
   },
   {
-    title: "Curated collections",
+    title: "24/7 Support",
     subtitle:
-      "Each section is stocked with 25+ products and curated brand favorites.",
-    icon: "✨",
+      "Connect with our certified electronics support technicians anytime.",
+    icon: "💬",
   },
   {
     title: "Secure checkout",
     subtitle:
-      "Encrypted payments and trusted order tracking for every purchase.",
-    icon: "🔒",
+      "Encrypted SSL protocols and trusted payment gateways for every buy.",
+    icon: "💳",
   },
 ];
 
 const brandPartners = [
-  { name: "Stride", caption: "Footwear innovators" },
   { name: "Tempo", caption: "Wearable technology" },
-  { name: "Lume", caption: "Home lighting" },
-  { name: "Breathe", caption: "Beauty essentials" },
-  { name: "DrivePro", caption: "Auto accessories" },
+  { name: "TechGear", caption: "Drones & cameras" },
+  { name: "Lume", caption: "Smart home lights" },
+  { name: "Breathe", caption: "Air purifiers" },
+  { name: "DrivePro", caption: "Car electronics" },
 ];
 
 const testimonials = [
   {
     name: "Sophia Chen",
-    role: "Fashion Buyer",
-    text: "WonderCart's curated categories made finding premium footwear effortless. The delivery was lightning fast.",
+    role: "System Designer",
+    text: "TechShed's curated computer and audio selections made upgrading my office setup effortless. The smartwatch shipping was lightning fast.",
     rating: 5,
   },
   {
     name: "Marcus Lee",
     role: "Tech Enthusiast",
-    text: "Electronics section is well organised. Love the product filters and detailed specs.",
+    text: "The headphone and TV systems are well organized. Love the real-time product filters and highly detailed specifications.",
     rating: 5,
   },
   {
     name: "Emma Watson",
-    role: "Home Decorator",
-    text: "Beautiful home collection – exactly what I needed for my renovation project.",
-    rating: 4,
+    role: "Home Architect",
+    text: "Stunning smart home and drone catalog – exactly the premium quality products I wanted for my smart house automation.",
+    rating: 5,
   },
 ];
 
@@ -170,6 +189,15 @@ export default function Home() {
     [products],
   );
 
+  const [activeShopCategory, setActiveShopCategory] = useState("All");
+
+  const filteredShopProducts = useMemo(() => {
+    if (activeShopCategory === "All") return products.slice(0, 9);
+    return products.filter(
+      (p) => p.category.toLowerCase() === activeShopCategory.toLowerCase()
+    ).slice(0, 9);
+  }, [products, activeShopCategory]);
+
   // Auto‑advance hero slider every 10 seconds
   useEffect(() => {
     if (featuredProducts.length === 0 && heroSlides.length === 0) return;
@@ -253,15 +281,15 @@ export default function Home() {
     <>
       <Head>
         <title>
-          WonderCart | Global shopping for fashion, home, electronics, and more
+          TechShed | Incredible Prices on Computers, Mobile, Audio & Wearable Tech
         </title>
         <meta
           name="description"
-          content="WonderCart is a worldwide e-commerce showcase for footwear, apparel, electronics, home, beauty, food, and auto essentials. Shop trending collections, limited-time deals, and fast delivery."
+          content="TechShed is a premium electronic storefront presenting incredible prices on computers, tablets, mobile accessories, audio gear, and drones. Shop trending tech deals and fast delivery."
         />
         <meta
           name="keywords"
-          content="shopping, ecommerce, online store, footwear, apparel, electronics, home decor, food, auto accessories"
+          content="shopping, electronics, online store, computers, tablets, smartphones, audio devices, smart home, wearable tech"
         />
         <script
           type="application/ld+json"
@@ -269,11 +297,11 @@ export default function Home() {
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Store",
-              name: "WonderCart",
-              url: "https://your-store-url.example",
-              logo: "https://your-store-url.example/logo.png",
+              name: "TechShed",
+              url: "https://techshed.example.com",
+              logo: "https://techshed.example.com/logo.png",
               description:
-                "A global shopping destination for fashion, electronics, home goods, food, and automotive essentials.",
+                "A premium shopping destination for computers, laptops, tablets, smartphones, audio, and wearable technology.",
               openingHours: "24/7",
               address: {
                 "@type": "PostalAddress",
@@ -286,101 +314,108 @@ export default function Home() {
       </Head>
 
       {/* Hero Slider Section */}
-      <section className="relative h-[85vh] min-h-[600px] w-full overflow-hidden">
-        {/* Background Image with fade transition */}
-        <div className="absolute inset-0 transition-opacity duration-1000 ease-in-out">
-          <img
-            src={currentSlideData.image}
-            alt={currentSlideData.title}
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
-        </div>
-
-        {/* Content */}
-        <div className="relative mx-auto flex h-full max-w-7xl items-center px-4 sm:px-6 lg:px-20">
-          <div className="max-w-2xl text-white animate-fade-in-up">
-            <p className="mb-3 text-sm uppercase tracking-[0.3em] text-accent-soft animate-slide-in-left [animation-delay:200ms] opacity-0">
-              {currentSlideData.category}
-            </p>
-            <h1 className="mb-4 text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl animate-slide-in-right [animation-delay:400ms] opacity-0">
-              {currentSlideData.title}
+      {/* Premium TechShed Wix Mockup Hero Section */}
+      <section className="relative w-full bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-850">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-20 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          {/* Hero Left Content */}
+          <div className="space-y-6 max-w-xl text-left animate-fade-in-up">
+            <div>
+              <span className="inline-block bg-red-600 text-white font-black uppercase tracking-wider text-[10px] px-3.5 py-1.5 rounded-sm">
+                Best Prices
+              </span>
+            </div>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+              Incredible Prices on All Your Favorite Items
             </h1>
-            <p className="mb-8 text-base leading-relaxed text-white/90 sm:text-lg animate-fade-in [animation-delay:600ms] opacity-0">
-              {currentSlideData.subtitle}
+            <p className="text-slate-600 dark:text-slate-300 text-base sm:text-lg font-normal">
+              Get more for less on selected brands
             </p>
-            <div className="flex flex-wrap gap-4 animate-scale-in [animation-delay:800ms] opacity-0">
-              <button
-                type="button"
-                onClick={() => navigateCategory(currentSlideData.category)}
-                className="rounded-full bg-accent px-8 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:scale-105 hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 animate-bounce-in"
-              >
-                Shop Now →
-              </button>
+            <div className="pt-2">
               <Link
-                href={currentSlideData.link}
-                className="rounded-full bg-white/20 backdrop-blur-sm px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-white/30 animate-float"
+                href="/#shop"
+                className="inline-block rounded-full bg-indigo-600 hover:bg-indigo-700 text-white px-9 py-3.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 hover:scale-105 shadow-md shadow-indigo-500/20"
               >
-                Learn More
+                Shop Now
               </Link>
             </div>
           </div>
+
+          {/* Hero Right Image */}
+          <div className="relative flex justify-center items-center animate-fade-in [animation-delay:300ms]">
+            <div className="w-[85%] md:w-[95%] aspect-square max-w-[440px] bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center overflow-hidden shadow-2xl relative border-4 border-white dark:border-slate-800">
+              <img
+                src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=800&q=80"
+                alt="Premium Smartwatch Hero"
+                className="w-[80%] h-[80%] object-contain hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+            {/* Soft background glow */}
+            <div className="absolute -z-10 w-72 h-72 rounded-full bg-indigo-200/40 dark:bg-indigo-900/20 blur-3xl" />
+          </div>
+        </div>
+      </section>
+
+      {/* Side-by-Side Dual Promotional Grid (Holiday Deals & Just In) */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        {/* Banner 1: Holiday Deals */}
+        <div className="relative rounded-[2rem] overflow-hidden bg-gradient-to-br from-red-600 to-amber-600 text-white p-8 md:p-12 min-h-[380px] flex flex-col justify-between shadow-lg group hover:-translate-y-1 transition-all duration-300">
+          <div className="space-y-4 max-w-[65%]">
+            <span className="text-white/80 text-xs font-bold uppercase tracking-wider">Holiday Deals</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">
+              Up to 30% off
+            </h2>
+            <p className="text-white/90 text-sm font-medium">
+              Selected Smartphone Brands
+            </p>
+            <div className="pt-4">
+              <Link
+                href="/category/Electronics"
+                className="inline-block rounded-full bg-white text-slate-900 hover:bg-slate-100 px-7 py-3 text-xs font-bold uppercase tracking-wider transition-all"
+              >
+                Shop
+              </Link>
+            </div>
+          </div>
+          {/* Overlay phone image */}
+          <div className="absolute right-4 bottom-4 w-[35%] max-w-[200px] h-[80%] flex items-end">
+            <img
+              src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=500&q=80"
+              alt="Smartphone holiday deals"
+              className="w-full h-auto object-contain rounded-2xl shadow-xl group-hover:scale-105 transition-transform duration-500"
+            />
+          </div>
         </div>
 
-        {/* Navigation Arrows */}
-        <button
-          onClick={prevSlide}
-          className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/30 p-2 text-white backdrop-blur-sm transition-all hover:bg-black/50 focus:outline-none focus:ring-2 focus:ring-accent"
-          aria-label="Previous slide"
-        >
-          <svg
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
+        {/* Banner 2: Just In */}
+        <div className="relative rounded-[2rem] overflow-hidden bg-gradient-to-br from-indigo-600 to-purple-750 text-white p-8 md:p-12 min-h-[380px] flex flex-col justify-between shadow-lg group hover:-translate-y-1 transition-all duration-300">
+          <div className="space-y-4 max-w-[65%]">
+            <span className="text-white/80 text-xs font-bold uppercase tracking-wider">Just In</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">
+              Take Your Sound Anywhere
+            </h2>
+            <p className="text-white/90 text-sm font-medium">
+              Top Headphone Brands
+            </p>
+            <div className="pt-4">
+              <Link
+                href="/category/Electronics"
+                className="inline-block rounded-full bg-white text-slate-900 hover:bg-slate-100 px-7 py-3 text-xs font-bold uppercase tracking-wider transition-all"
+              >
+                Shop
+              </Link>
+            </div>
+          </div>
+          {/* Overlay headphone image */}
+          <div className="absolute right-4 bottom-4 w-[35%] max-w-[200px] h-[80%] flex items-end">
+            <img
+              src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80"
+              alt="Headphone showcase"
+              className="w-full h-auto object-contain rounded-2xl shadow-xl group-hover:scale-105 transition-transform duration-500"
             />
-          </svg>
-        </button>
-        <button
-          onClick={nextSlide}
-          className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/30 p-2 text-white backdrop-blur-sm transition-all hover:bg-black/50 focus:outline-none focus:ring-2 focus:ring-accent"
-          aria-label="Next slide"
-        >
-          <svg
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </button>
-
-        {/* Pagination Dots */}
-        <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-2">
-          {slidesToShow.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => goToSlide(idx)}
-              className={`h-2 rounded-full transition-all ${idx === currentSlide
-                ? "w-8 bg-accent"
-                : "w-2 bg-white/50 hover:bg-white/80"
-                }`}
-              aria-label={`Go to slide ${idx + 1}`}
-            />
-          ))}
+          </div>
         </div>
+
       </section>
 
       {/* Hero Highlights with Colors */}
@@ -418,6 +453,7 @@ export default function Home() {
 
       {/* Category Selector with Colors */}
       <section
+        id="collections"
         ref={register}
         className="mx-auto mt-10 max-w-7xl px-4 sm:px-6 lg:px-20 opacity-0"
       >
@@ -493,38 +529,57 @@ export default function Home() {
         </div>
       </section>
 
-      {/* New Arrivals Banner with Colors */}
+      {/* New Arrivals Banner with Highlights */}
       <section
+        id="highlights"
         ref={register}
         className="mx-auto mt-10 max-w-7xl px-4 sm:px-6 lg:px-20 opacity-0"
       >
-        <div className="rounded-[2rem] bg-gradient-to-r from-green-400 via-teal-500 to-blue-500 p-8 shadow-lg transition-all hover:shadow-xl border-2 border-green-300 animate-scale-in">
+        <div className="rounded-[2rem] bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 p-8 shadow-xl transition-all hover:shadow-2xl border-2 border-purple-300 animate-scale-in">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="animate-slide-in-left">
-              <p className="text-sm uppercase tracking-[0.32em] text-green-100 font-semibold animate-fade-in">
-                ✨ New arrivals
+              <p className="text-sm uppercase tracking-[0.32em] text-purple-100 font-semibold animate-fade-in">
+                ✨ Curated Highlights
               </p>
               <h2 className="mt-3 text-3xl font-semibold text-white sm:text-4xl animate-slide-in-right [animation-delay:200ms]">
-                Fresh picks just landed
+                Fresh drops just landed
               </h2>
               <p className="mt-4 max-w-xl text-sm leading-7 text-white/90 animate-fade-in [animation-delay:400ms]">
-                Discover the latest additions to our collection with exclusive
-                deals and limited-time offers.
+                Discover top-tier releases from our spring collection. Click on any item below to view full specifications, conversions, and customer reviews.
               </p>
+               {newArrivals.length > 0 && (
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Link
+                    href={`/product/${newArrivals[0]._id}`}
+                    className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-bold text-purple-600 hover:bg-slate-100 hover:scale-105 active:scale-95 transition-all shadow-lg animate-bounce-in"
+                  >
+                    Shop Highlights Collection →
+                  </Link>
+                  <Link
+                    href="/#reviews"
+                    className="inline-flex items-center justify-center rounded-full bg-white/20 border-2 border-white/30 backdrop-blur-sm px-6 py-3 text-sm font-bold text-white hover:bg-white/30 hover:scale-105 active:scale-95 transition-all shadow-md animate-float"
+                  >
+                    See Customer Reviews ⭐
+                  </Link>
+                </div>
+              )}
             </div>
             <div className="grid gap-4 sm:grid-cols-3 animate-slide-in-right [animation-delay:600ms]">
               {newArrivals.slice(0, 3).map((product, index) => (
-                <div
+                <Link
                   key={product._id}
-                  className="overflow-hidden rounded-lg bg-white/20 backdrop-blur-sm transition-all duration-500 hover:scale-110 border border-white/30 animate-bounce-in opacity-0"
+                  href={`/product/${product._id}`}
+                  className="group block overflow-hidden rounded-3xl bg-white/10 p-3 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white/20 border border-white/20 animate-bounce-in opacity-0"
                   style={{ animationDelay: `${(index + 1) * 200}ms` }}
                 >
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="h-32 w-full object-cover transition duration-500 hover:scale-110 animate-shimmer"
-                  />
-                </div>
+                  <div className="overflow-hidden rounded-2xl bg-white p-3 h-28 flex items-center justify-center">
+                    <SafeSpotlightImage product={product} />
+                  </div>
+                  <div className="mt-3 text-center">
+                    <p className="truncate text-xs font-bold text-white">{product.name}</p>
+                    <p className="text-xs font-semibold text-purple-100 mt-0.5">${product.price.toFixed(2)}</p>
+                  </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -533,6 +588,7 @@ export default function Home() {
 
       {/* Trending Products */}
       <section
+        id="shop"
         ref={register}
         className="mx-auto mt-10 max-w-7xl px-4 sm:px-6 lg:px-20 pb-20 opacity-0"
       >
@@ -547,9 +603,38 @@ export default function Home() {
               </h2>
             </div>
             <p className="max-w-xl text-sm leading-7 text-muted animate-fade-in [animation-delay:400ms]">
-              Browse top sellers, flash favorites, and seasonal essentials with
-              clean, professional product cards.
+              Select from the quick category filter buttons below to dynamically load and browse our premium catalog of curated, high-end products.
             </p>
+          </div>
+
+          {/* Interactive Category Filter Buttons */}
+          <div className="mt-8 flex flex-wrap gap-2 animate-fade-in [animation-delay:500ms]">
+            {[
+              { id: "All", name: "All Items", icon: "✨" },
+              { id: "Footwear", name: "Footwear", icon: "👟" },
+              { id: "Apparel", name: "Apparel", icon: "👕" },
+              { id: "Electronics", name: "Electronics", icon: "🎧" },
+              { id: "Accessories", name: "Accessories", icon: "⌚" },
+              { id: "Home", name: "Home & Living", icon: "🏠" },
+              { id: "Fitness", name: "Fitness", icon: "🏋️" }
+            ].map((cat) => {
+              const isActive = activeShopCategory.toLowerCase() === cat.id.toLowerCase();
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setActiveShopCategory(cat.id)}
+                  className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 active:scale-95 shadow-sm border ${
+                    isActive
+                      ? "bg-gradient-to-r from-brand-600 to-indigo-600 text-white border-brand-500 scale-105 shadow-md shadow-brand-500/20"
+                      : "bg-surface-soft hover:bg-surface-strong text-slate-700 dark:text-slate-300 border-border hover:border-slate-300"
+                  }`}
+                >
+                  <span>{cat.icon}</span>
+                  <span>{cat.name}</span>
+                </button>
+              );
+            })}
           </div>
 
           <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3 animate-fade-in [animation-delay:600ms]">
@@ -557,11 +642,11 @@ export default function Home() {
               ? Array.from({ length: 6 }).map((_, i) => (
                 <ProductSkeleton key={`skeleton-${i}`} />
               ))
-              : newArrivals.map((product, index) => (
+              : filteredShopProducts.map((product, index) => (
                 <div
                   key={product._id}
                   className="transition-all duration-500 hover:-translate-y-2 animate-bounce-in opacity-0"
-                  style={{ animationDelay: `${index * 150}ms` }}
+                  style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <ProductCard
                     product={product}
@@ -570,11 +655,19 @@ export default function Home() {
                 </div>
               ))}
           </div>
+          
+          {filteredShopProducts.length === 0 && (
+            <div className="mt-12 text-center text-slate-500 py-10 animate-fade-in">
+              <span className="text-4xl">🔍</span>
+              <p className="mt-3 text-sm font-semibold">No items found in this section category.</p>
+            </div>
+          )}
         </div>
       </section>
 
       {/* Testimonials Section */}
       <section
+        id="reviews"
         ref={register}
         className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-20 pb-20 opacity-0"
       >

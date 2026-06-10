@@ -2,10 +2,5 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/": "pages/index.js",
-  "/product/[id]": "pages/product/[id].js",
-  "/category/[category]": "pages/category/[category].js",
-  "/cart": "pages/cart.js",
-  "/notifications": "pages/notifications.js",
-  "/login": "pages/login.js"
+  "/category/[category]": "pages/category/[category].js"
 }

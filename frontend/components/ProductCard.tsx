@@ -4,6 +4,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import PropTypes from "prop-types";
+import ProductImageFallback from "./ProductImageFallback";
 
 // Star rating helper (full, half, empty stars)
 const StarRating = ({ rating }) => {
@@ -148,20 +149,20 @@ const ProductCard = ({ product, onAddToCart }) => {
         href={`/product/${product._id}`}
         className="relative block h-72 w-full overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800"
       >
-        {!imageError ? (
+        {!imageError && product.image ? (
           <img
             src={product.image}
             alt={product.name}
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="h-full w-full object-contain p-4 transition-transform duration-700 group-hover:scale-105"
             onError={() => setImageError(true)}
             loading="lazy"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-slate-100 dark:bg-slate-900">
-            <span className="text-sm text-slate-400 dark:text-slate-400">
-              Image unavailable
-            </span>
-          </div>
+          <ProductImageFallback
+            category={product.category}
+            name={product.name}
+            className="h-full w-full"
+          />
         )}
 
         {/* Badges overlay */}

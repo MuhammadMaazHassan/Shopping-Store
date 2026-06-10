@@ -19,6 +19,15 @@ const updateUserProfile = async (req, res) => {
   user.phone = req.body.phone || user.phone;
   user.address = req.body.address || user.address;
   user.areaCode = req.body.areaCode || user.areaCode;
+  
+  if (req.body.notificationSettings !== undefined) {
+    user.notificationSettings = req.body.notificationSettings;
+  }
+  
+  if (req.body.preferences !== undefined) {
+    user.preferences = req.body.preferences;
+  }
+
   if (req.body.password) {
     user.password = req.body.password;
   }
@@ -32,6 +41,8 @@ const updateUserProfile = async (req, res) => {
     address: updatedUser.address,
     areaCode: updatedUser.areaCode,
     isAdmin: updatedUser.isAdmin,
+    notificationSettings: updatedUser.notificationSettings,
+    preferences: updatedUser.preferences,
   });
 };
 
