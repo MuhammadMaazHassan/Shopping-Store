@@ -3,10 +3,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import PropTypes from "prop-types";
+import { Heart, ShoppingCart } from "lucide-react";
 import ProductImageFallback from "./ProductImageFallback";
 
-// Star rating helper (full, half, empty stars)
+// Star rating helper (full, half, empty stars) – kept identical to yours
 const StarRating = ({ rating }) => {
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 >= 0.5;
@@ -37,7 +39,7 @@ const StarRating = ({ rating }) => {
       {[...Array(emptyStars)].map((_, i) => (
         <svg
           key={i}
-          className="h-3.5 w-3.5 fill-current text-gray-300"
+          className="h-3.5 w-3.5 fill-current text-gray-300 dark:text-gray-600"
           viewBox="0 0 20 20"
         >
           <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
@@ -47,7 +49,7 @@ const StarRating = ({ rating }) => {
   );
 };
 
-// Animated Add to Cart button with loading and stock states
+// Animated Add to Cart button (improved styling and dark mode)
 const AddToCartButton = ({ onClick, isAdding, outOfStock }) => {
   if (outOfStock) {
     return (
@@ -66,13 +68,14 @@ const AddToCartButton = ({ onClick, isAdding, outOfStock }) => {
       type="button"
       onClick={onClick}
       disabled={isAdding}
-      className={`rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 active:scale-95 ${isAdding
-          ? "cursor-wait bg-brand-400"
-          : "bg-brand-600 hover:bg-brand-700 hover:shadow-md"
-        }`}
+      className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 active:scale-95 ${
+        isAdding
+          ? "cursor-wait bg-brand-400 dark:bg-brand-600"
+          : "bg-brand-600 hover:bg-brand-700 hover:shadow-md dark:bg-brand-500 dark:hover:bg-brand-600"
+      }`}
     >
       {isAdding ? (
-        <div className="flex items-center justify-center gap-2">
+        <>
           <svg
             className="h-4 w-4 animate-spin text-white"
             viewBox="0 0 24 24"
@@ -93,33 +96,35 @@ const AddToCartButton = ({ onClick, isAdding, outOfStock }) => {
             />
           </svg>
           <span>Adding...</span>
-        </div>
+        </>
       ) : (
-        "Add to cart"
+        <>
+          <ShoppingCart size={16} />
+          <span>Add to cart</span>
+        </>
       )}
     </button>
   );
 };
 
-// Main ProductCard component
+// Main ProductCard component – redesigned for modern look, dark mode, animations
 const ProductCard = ({ product, onAddToCart }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [showAddedFeedback, setShowAddedFeedback] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(false); // optional wishlist
 
-  // Stock handling (default to 1 if countInStock missing)
   const outOfStock = (product.countInStock ?? 1) <= 0;
   const discountPercent =
     product.originalPrice && product.originalPrice > product.price
       ? Math.round(
-        ((product.originalPrice - product.price) / product.originalPrice) *
-        100,
-      )
+          ((product.originalPrice - product.price) / product.originalPrice) *
+            100,
+        )
       : 0;
 
   const handleAddToCart = async () => {
     if (outOfStock || isAdding) return;
-
     setIsAdding(true);
     try {
       await onAddToCart(product);
@@ -133,27 +138,49 @@ const ProductCard = ({ product, onAddToCart }) => {
   };
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl dark:border-slate-800 dark:bg-slate-950">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl dark:border-slate-800 dark:bg-slate-950">
       {/* Added to cart toast feedback */}
       <div
-        className={`absolute left-1/2 top-4 z-20 -translate-x-1/2 transform rounded-full bg-emerald-500 px-3 py-1 text-xs font-medium text-white shadow-lg transition-all duration-300 ${showAddedFeedback
+        className={`absolute left-1/2 top-4 z-20 -translate-x-1/2 transform rounded-full bg-emerald-500 px-3 py-1 text-xs font-medium text-white shadow-lg transition-all duration-300 ${
+          showAddedFeedback
             ? "translate-y-0 opacity-100"
-            : "-translate-y-8 pointer-events-none opacity-0"
-          }`}
+            : "pointer-events-none -translate-y-8 opacity-0"
+        }`}
       >
         ✓ Added to cart!
       </div>
 
-      {/* Product image with zoom on hover */}
+      {/* Wishlist heart button (optional) */}
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          setIsWishlisted(!isWishlisted);
+        }}
+        className="absolute right-3 top-3 z-10 rounded-full bg-white/80 p-1.5 backdrop-blur-sm transition hover:scale-110 dark:bg-slate-800/80"
+        aria-label="Add to wishlist"
+      >
+        <Heart
+          size={18}
+          className={`transition-colors ${
+            isWishlisted
+              ? "fill-rose-500 text-rose-500"
+              : "text-slate-600 group-hover:text-rose-500 dark:text-slate-400"
+          }`}
+        />
+      </button>
+
+      {/* Product image with Next.js optimization and zoom */}
       <Link
         href={`/product/${product._id}`}
         className="relative block h-72 w-full overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800"
       >
         {!imageError && product.image ? (
-          <img
+          <Image
             src={product.image}
             alt={product.name}
-            className="h-full w-full object-contain p-4 transition-transform duration-700 group-hover:scale-105"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-contain p-4 transition-transform duration-700 group-hover:scale-110"
             onError={() => setImageError(true)}
             loading="lazy"
           />
@@ -187,14 +214,14 @@ const ProductCard = ({ product, onAddToCart }) => {
 
       {/* Product details */}
       <div className="flex flex-1 flex-col p-5">
-        <div className="mb-3 flex items-start justify-between gap-2">
+        <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             <div className="mb-2 flex flex-wrap items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-brand-700">
+              <span className="text-xs font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-400">
                 {product.category}
               </span>
               {product.gender && (
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-500 dark:text-slate-400">
                   • {product.gender}
                 </span>
               )}
@@ -215,15 +242,15 @@ const ProductCard = ({ product, onAddToCart }) => {
           <div className="text-right">
             {product.originalPrice && product.originalPrice > product.price ? (
               <div className="flex flex-col items-end">
-                <span className="text-sm font-bold text-brand-700">
+                <span className="text-sm font-bold text-brand-700 dark:text-brand-400">
                   ${product.price.toFixed(2)}
                 </span>
-                <span className="text-xs text-slate-400 line-through">
+                <span className="text-xs text-slate-400 line-through dark:text-slate-500">
                   ${product.originalPrice.toFixed(2)}
                 </span>
               </div>
             ) : (
-              <span className="text-lg font-bold text-brand-700">
+              <span className="text-lg font-bold text-brand-700 dark:text-brand-400">
                 ${product.price.toFixed(2)}
               </span>
             )}
@@ -247,7 +274,7 @@ const ProductCard = ({ product, onAddToCart }) => {
         {!outOfStock &&
           product.countInStock !== undefined &&
           product.countInStock < 5 && (
-            <p className="mt-2 text-xs text-emerald-600">
+            <p className="mt-2 text-xs text-emerald-600 dark:text-emerald-400">
               Only {product.countInStock} left in stock
             </p>
           )}
@@ -256,19 +283,19 @@ const ProductCard = ({ product, onAddToCart }) => {
         {product.delivery && (
           <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl bg-slate-50 p-3 dark:bg-slate-900">
             <div className="text-center text-[11px]">
-              <p className="font-semibold text-slate-700 dark:text-slate-100">
+              <p className="font-semibold text-slate-700 dark:text-slate-200">
                 {product.delivery.standard}d
               </p>
               <p className="text-slate-500 dark:text-slate-400">Standard</p>
             </div>
             <div className="text-center text-[11px]">
-              <p className="font-semibold text-slate-700 dark:text-slate-100">
+              <p className="font-semibold text-slate-700 dark:text-slate-200">
                 {product.delivery.express}d
               </p>
               <p className="text-slate-500 dark:text-slate-400">Express</p>
             </div>
             <div className="text-center text-[11px]">
-              <p className="font-semibold text-slate-700 dark:text-slate-100">
+              <p className="font-semibold text-slate-700 dark:text-slate-200">
                 {product.delivery.overnight}d
               </p>
               <p className="text-slate-500 dark:text-slate-400">Overnight</p>
@@ -280,7 +307,7 @@ const ProductCard = ({ product, onAddToCart }) => {
         <div className="mt-5 flex items-center justify-between gap-3">
           <Link
             href={`/product/${product._id}`}
-            className="text-sm font-medium text-brand-700 transition-all hover:text-brand-900 hover:underline focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"
+            className="text-sm font-medium text-brand-700 transition-all hover:text-brand-900 hover:underline focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1 dark:text-brand-400 dark:hover:text-brand-300"
           >
             View details →
           </Link>
@@ -295,7 +322,7 @@ const ProductCard = ({ product, onAddToCart }) => {
   );
 };
 
-// PropTypes for runtime type checking (optional but recommended)
+// PropTypes remain identical (no changes needed)
 ProductCard.propTypes = {
   product: PropTypes.shape({
     _id: PropTypes.string.isRequired,
